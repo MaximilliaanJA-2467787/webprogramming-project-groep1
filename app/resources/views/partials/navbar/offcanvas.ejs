@@ -1,0 +1,54 @@
+<div class="offcanvas offcanvas-end d-lg-none" tabindex="-1" id="offcanvasNavbar" aria-labelledby="offcanvasNavbarLabel">
+  <div class="offcanvas-header d-flex align-items-center">
+    <a href="/" class="d-flex align-items-center text-decoration-none">
+      <img src="<%= typeof logoUrl !== 'undefined' ? logoUrl : '/images/bootstrap-logo.svg' %>"
+           alt="Logo" width="36" height="36" class="d-inline-block align-text-top me-2" />
+      <span class="fw-semibold text-dark"><%= typeof brand !== 'undefined' ? brand : 'MyApp' %></span>
+    </a>
+    <button type="button" class="btn-close text-reset" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+  </div>
+
+  <div class="offcanvas-body pt-2">
+    <!-- Navigation Links -->
+    <ul class="nav flex-column mb-4">
+      <%- include('./nav-links.ejs', { navLinks: navLinks, currentRoute: currentRoute, desktop: false }) %>
+    </ul>
+
+    <% if (user) { %>
+      <!-- User Profile Block -->
+      <div class="d-flex align-items-center mb-3 px-2">
+        <img src="<%= user.avatarUrl || '/images/default-avatar.png' %>"
+             alt="Avatar" width="48" height="48" class="rounded-circle me-3" />
+        <div>
+          <div class="fw-semibold"><%= user.name %></div>
+          <small class="text-muted">Member</small>
+        </div>
+      </div>
+
+      <!-- Modern User Action Buttons -->
+      <div class="d-grid gap-2 px-2 mb-3">
+        <% (userActions || []).forEach(function(action) {
+             const href = action.href ? action.href : (action.route ? '/' + action.route : '#');
+             const label = action.name.charAt(0).toUpperCase() + action.name.slice(1);
+             if (action.asForm && (action.method || 'post').toLowerCase() === 'post') { %>
+               <form action="<%= href %>" method="post" class="m-0">
+                 <button type="submit" class="btn <%= action.name === 'logout' ? 'btn-outline-danger' : 'btn-outline-secondary' %> btn-sm text-start">
+                   <i class="<%= action.icon %> me-2"></i> <%= label %>
+                 </button>
+               </form>
+          <% } else { %>
+               <a href="<%= href %>" class="btn btn-outline-secondary btn-sm text-start">
+                 <i class="<%= action.icon %> me-2"></i> <%= label %>
+               </a>
+          <% } %>
+        <% }); %>
+
+    <% } else { %>
+      <!-- Auth Buttons -->
+      <div class="d-grid gap-2 px-2">
+        <a class="btn btn-primary btn-sm" href="/login">Login</a>
+        <a class="btn btn-outline-primary btn-sm" href="/signup">Sign up</a>
+      </div>
+    <% } %>
+  </div>
+</div>

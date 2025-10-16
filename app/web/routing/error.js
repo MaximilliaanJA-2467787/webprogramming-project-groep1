@@ -6,7 +6,7 @@ class ErrorRouter extends BaseRouter {
     }
 
     bind() {
-        this.get('/:status', 'ErrorController::index');
+        this.get('/:status', 'ErrorController::index', { name: 'error' });
         super.bind();
     }
 }

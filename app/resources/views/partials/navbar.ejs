@@ -1,0 +1,30 @@
+<nav class="navbar navbar-expand-lg navbar-light bg-light">
+  <div class="container-fluid">
+    <!-- Brand -->
+    <%- include('./brand.ejs', { brand: brand, logoUrl: logoUrl }) %>
+
+    <!-- Mobile toggler -->
+    <button class="navbar-toggler" type="button"
+            data-bs-toggle="offcanvas"
+            data-bs-target="#offcanvasNavbar"
+            aria-controls="offcanvasNavbar"
+            aria-label="Toggle navigation">
+      <span class="navbar-toggler-icon"></span>
+    </button>
+
+    <!-- Desktop links (lg+) -->
+    <div class="d-none d-lg-flex flex-grow-1 justify-content-between align-items-center">
+      <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+        <%- include('./navbar/nav-links.ejs', { navLinks: navLinks, currentRoute: currentRoute, desktop: true }) %>
+      </ul>
+
+      <!-- Right area: user profile or auth buttons -->
+      <div>
+        <%- include('./navbar/user-area.ejs', { user: user, userActions: userActions }) %>
+      </div>
+    </div>
+
+    <!-- Mobile Offcanvas -->
+    <%- include('./navbar/offcanvas.ejs', { navLinks: navLinks, user: user, userActions: userActions, brand: brand, logoUrl: logoUrl, currentRoute: currentRoute }) %>
+  </div>
+</nav>

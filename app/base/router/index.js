@@ -1,27 +1,28 @@
 const fs = require('fs');
 const path = require('path');
 const config = require('../../config');
+const logger = require('../../utils/Logger');
 
 class Router {
+    static globalRegistry = {};
+
     constructor(expressApp, basePath = '') {
         if (!expressApp) throw new Error('Express instance required for Router');
         this.express = expressApp;
-        this.basePath = basePath; // prefix for grouped routes
+        this.basePath = basePath;
         this.controllerRegister = {};
         this.middlewareRegister = {};
 
         if (basePath === '') {
-            // Only register controllers/middleware for the root Router
             this._registerControllers();
             this._registerMiddleware();
         }
 
-        // Dynamically create route methods for HTTP verbs
         ['get', 'post', 'put', 'delete', 'patch', 'options'].forEach((method) => {
             this[method] = (route, ...handlers) => this._registerRoute(method, route, ...handlers);
         });
 
-        this._routes = []; // store routes temporarily before binding
+        this._routes = [];
     }
 
     _scanFolderRecursively(folderPath) {
@@ -87,30 +88,63 @@ class Router {
             throw new Error('No controller or middleware provided.');
         }
 
-        // store route for later binding
-        this._routes.push({ method, route, handlers });
+        let name = null;
+        const last = handlers[handlers.length - 1];
+        if (typeof last === 'object' && last.name) {
+            name = last.name;
+            handlers.pop();
+        }
+
+        this._routes.push({ method, route, handlers, name });
     }
 
-    // Register all stored routes to Express
     bind() {
-        for (const { method, route, handlers } of this._routes) {
+        for (const { method, route, handlers, name } of this._routes) {
             const resolvedHandlers = handlers.map((h) => this._resolveHandler(h));
             const fullPath = path.posix.join(this.basePath, route);
-            this.express[method](fullPath, ...resolvedHandlers);
+
+            if (name) {
+                if (Router.globalRegistry[name]) {
+                    console.warn(`Duplicate route name detected: ${name}`);
+                }
+                Router.globalRegistry[name] = {
+                    method: method.toUpperCase(),
+                    path: fullPath,
+                    handlers: resolvedHandlers,
+                };
+            }
+
+            this.express[method](
+                fullPath,
+                (req, res, next) => {
+                    if (name) {
+                        res.locals.currentRoute = name;
+                    } else {
+                        res.locals.currentRoute = null;
+                    }
+                    next();
+                },
+                ...resolvedHandlers
+            );
         }
+
+        this._routes.forEach((route) => {
+            let info = route.name ? 'with name: ' + route.name : '';
+            logger.info(`Bound route: ${route.route} ${info}`);
+        });
     }
 
     group(prefix, callback) {
         const groupRouter = new Router(this.express, path.posix.join(this.basePath, prefix));
-
-        // Share the controller/middleware registries
         groupRouter.controllerRegister = this.controllerRegister;
         groupRouter.middlewareRegister = this.middlewareRegister;
 
         callback(groupRouter);
-
-        // Bind group routes to express
         groupRouter.bind();
+    }
+
+    static listRoutes() {
+        return this.globalRegistry;
     }
 
     prefix(prefixString) {
@@ -122,7 +156,6 @@ class Router {
             };
         });
 
-        // Also update basePath so that future routes inherit the prefix
         this.basePath = path.posix.join(prefixString, this.basePath);
     }
 }

@@ -5,6 +5,7 @@ const session = require('express-session');
 const Logger = require('../utils/Logger');
 const path = require('path');
 const fs = require('fs');
+const logger = require('../utils/Logger');
 
 class ExpressApp {
     constructor() {
@@ -31,6 +32,10 @@ class ExpressApp {
         );
         this.express.use(express.json());
         this.express.use(express.static(config.paths.public));
+
+        // Expose ejs helpers:
+        // For generating routes based on a name:
+        this.express.locals.route = require('./controller/route');
     }
 
     // Overrideable
@@ -66,6 +71,7 @@ class ExpressApp {
         }
 
         const MiddlewareModule = require(path.join(config.paths.middleware, middlewareFile));
+        logger.info(`Bound middleware: ${middlewareFile}`);
         this.express.use(MiddlewareModule[middlewareName]);
     }
 

@@ -8,6 +8,7 @@ class App extends ExpressApp {
     bindPreMiddlewares() {
         // Log each request
         this.bindMiddlewareModule('RequestLogger');
+        this.bindMiddlewareModule('LayoutDataHandler');
     }
 
     bindRoutes() {
