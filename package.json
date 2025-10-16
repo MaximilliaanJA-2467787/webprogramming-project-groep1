@@ -1,0 +1,41 @@
+{
+  "name": "cashless-web-project",
+  "version": "1.0.0",
+  "description": "Cashless payment platform for events and vendors",
+  "keywords": [
+    "Cashless",
+    "payment",
+    "website",
+    "bootstrap",
+    "express",
+    "node",
+    "eventpayments",
+    "sales",
+    "vendors"
+  ],
+  "homepage": "https://github.com/MaximilliaanJA-2467787/webprogramming-project-groep1#readme",
+  "bugs": {
+    "url": "https://github.com/MaximilliaanJA-2467787/webprogramming-project-groep1/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/MaximilliaanJA-2467787/webprogramming-project-groep1.git"
+  },
+  "license": "ISC",
+  "author": "Maximiliaan Janssen, Mathijs Follon",
+  "type": "commonjs",
+  "main": "index.js",
+  "directories": {
+    "doc": "docs"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "dependencies": {
+    "better-sqlite3": "^12.4.1",
+    "ejs": "^3.1.10",
+    "express": "^5.1.0",
+    "express-ejs-layouts": "^2.5.1",
+    "express-session": "^1.18.2"
+  }
+}
