@@ -1,6 +1,0 @@
-# node.js
-**/node_modules/
-
-# database temp files
-*-shm
-*-wal
