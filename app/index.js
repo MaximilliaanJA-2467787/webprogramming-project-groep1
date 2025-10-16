@@ -1,4 +1,4 @@
-const ExpressApp = require("./base");
+const ExpressApp = require('./base');
 
 class App extends ExpressApp {
     constructor() {

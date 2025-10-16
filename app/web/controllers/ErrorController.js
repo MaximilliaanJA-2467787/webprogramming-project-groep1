@@ -9,7 +9,6 @@ class ErrorController extends BaseController {
     }
 
     index(req, res) {
-        
         const data = {};
 
         // Where status is a wildcard in the route: /error/:status
@@ -20,9 +19,8 @@ class ErrorController extends BaseController {
         data.status = error.status;
 
         data.layout = layout('error-layout');
-        
-        res.render(view('error'), data);
 
+        res.render(view('error'), data);
     }
 }
 

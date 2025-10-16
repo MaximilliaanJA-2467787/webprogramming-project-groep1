@@ -3,9 +3,9 @@ const logger = require('../../utils/Logger');
 
 class FallbackMiddleware extends BaseMiddleware {
     constructor() {
-        super("FallbackHandler");
+        super('FallbackHandler');
     }
-    
+
     async handle(req, res, next) {
         res.redirect('/error/404');
     }

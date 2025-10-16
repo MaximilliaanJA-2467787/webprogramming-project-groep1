@@ -3,9 +3,9 @@ const logger = require('../../utils/Logger');
 
 class ErrorHandlerMiddleware extends BaseMiddleware {
     constructor() {
-        super("ErrorHandler");
+        super('ErrorHandler');
     }
-    
+
     async handle(err, req, res, next) {
         if (err) {
             logger.logError(err);

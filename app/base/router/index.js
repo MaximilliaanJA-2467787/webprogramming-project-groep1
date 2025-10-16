@@ -115,10 +115,10 @@ class Router {
 
     prefix(prefixString) {
         if (!prefixString) return;
-        this._routes = this._routes.map(routeObj => {
+        this._routes = this._routes.map((routeObj) => {
             return {
                 ...routeObj,
-                route: path.posix.join(prefixString, routeObj.route)
+                route: path.posix.join(prefixString, routeObj.route),
             };
         });
 

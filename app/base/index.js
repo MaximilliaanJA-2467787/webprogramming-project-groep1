@@ -20,35 +20,27 @@ class ExpressApp {
         this.express.use(expressLayouts);
         this.express.set('layout', 'layouts/default-layout');
         this.express.use(
-            session(
-                {
-                    secret: "Session-Key",
-                    resave: false,
-                    saveUninitialized: true,
-                    cookie: {
-                        maxAge: 60000
-                    },
-                }
-            )
+            session({
+                secret: 'Session-Key',
+                resave: false,
+                saveUninitialized: true,
+                cookie: {
+                    maxAge: 60000,
+                },
+            })
         );
-        this.express.use(express.json()); 
+        this.express.use(express.json());
         this.express.use(express.static(config.paths.public));
     }
 
     // Overrideable
-    bindPreMiddlewares() {
-
-    }
+    bindPreMiddlewares() {}
 
     // Overrideable
-    bindRoutes() {
-        
-    }
+    bindRoutes() {}
 
     // Overrideable
-    bindPostMiddlewares() {
-
-    }
+    bindPostMiddlewares() {}
 
     bindRouteModule(routerName, prefix = '') {
         const Router = require(path.join(config.paths.routes, routerName));
