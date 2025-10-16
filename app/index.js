@@ -1,22 +1,26 @@
-const express = require('express');
-const config = require('./config');
-const Logger = require('./utils/Logger');
+const ExpressApp = require("./base");
 
-class ExpressApp {
+class App extends ExpressApp {
     constructor() {
-        this.express = express();
-        this.port = config.server.port;
-        this.env = config.env;
+        super();
     }
 
-    listen() {
-        return this.express.listen(this.port, () => {
-            Logger.success(`Server running on port ${this.port}`);
-            Logger.info(`Environment: ${config.env}`);
-        });
+    bindPreMiddlewares() {
+        this.bindMiddlewareModule('RequestLogger');
+    }
+
+    bindRoutes() {
+        this.bindRouteModule('test', '/tests');
+        this.bindRouteModule('web');
+        this.bindRouteModule('error', '/error');
+        this.bindRouteModule('api', '/api');
+    }
+
+    bindPostMiddlewares() {
+        this.bindMiddlewareModule('FallbackHandler');
+        this.bindMiddlewareModule('ErrorHandler');
     }
 }
 
-const app = new ExpressApp();
-
+const app = new App();
 module.exports = app;
