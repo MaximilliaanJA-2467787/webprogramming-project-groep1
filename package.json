@@ -29,6 +29,7 @@
     "doc": "docs"
   },
   "scripts": {
+    "dev": "node index.js",
     "prettier": "npx prettier --write 'app/**/*.js'",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
