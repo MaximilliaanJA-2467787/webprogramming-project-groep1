@@ -1,0 +1,46 @@
+<section class="container py-5 d-flex align-items-center justify-content-center min-vh-100">
+  <div class="row justify-content-center w-100">
+    <div class="col-12 col-md-10 col-lg-7 col-xl-6">
+      <div class="card shadow-lg border-0 rounded-4">
+        <div class="card-body p-5 text-center">
+
+          <!-- Error Code -->
+          <div class="mb-4" role="status" aria-live="polite">
+            <h1 class="display-1 fw-bold text-danger mb-0 animate-fade-in">
+              <%= typeof status !== 'undefined' ? status : 500 %>
+            </h1>
+          </div>
+
+          <!-- Title -->
+          <h2 class="h4 fw-semibold mb-3">
+            <%= title || 'Something went wrong' %>
+          </h2>
+
+          <!-- Message -->
+          <p class="mb-4 text-muted lead">
+            <%= message || 'An unexpected error occurred. Please try again later.' %>
+          </p>
+
+          <!-- Buttons -->
+          <div class="d-flex flex-column flex-sm-row justify-content-center gap-3 mt-4">
+            <a href="/" class="btn btn-lg btn-primary px-4 py-2 fw-semibold">
+              Go to Home
+            </a>
+            <button type="button" class="btn btn-lg btn-outline-secondary px-4 py-2 fw-semibold"
+              onclick="history.back()">
+              Go Back
+            </button>
+          </div>
+
+        </div>
+      </div>
+
+      <!-- Support Info -->
+      <div class="text-center mt-4">
+        <small class="text-muted">
+          If the issue persists, please <a href="<%= route('support') %>" class="text-decoration-none text-primary">contact support</a>.
+        </small>
+      </div>
+    </div>
+  </div>
+</section>

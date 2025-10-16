@@ -1,0 +1,43 @@
+<% if (user) { %>
+  <div class="dropdown">
+    <button class="btn d-flex align-items-center dropdown-toggle" type="button"
+            id="navbarProfileDropdown" data-bs-toggle="dropdown" aria-expanded="false">
+      <img src="<%= user.avatarUrl || '/images/default-avatar.png' %>"
+           alt="Avatar" width="36" height="36" class="rounded-circle me-2" />
+      <span><%= user.name %></span>
+    </button>
+
+    <ul class="dropdown-menu dropdown-menu-end p-2" aria-labelledby="navbarProfileDropdown" style="min-width: 200px;">
+      <% (userActions || []).forEach(function(action) {
+           const href = action.href ? action.href : (action.route ? '/' + action.route : '#');
+           const label = action.name.charAt(0).toUpperCase() + action.name.slice(1);
+           if (action.asForm && (action.method || 'post').toLowerCase() === 'post') { %>
+             <li class="mb-1">
+               <form action="<%= href %>" method="post" class="m-0">
+                 <button type="submit" class="btn <%= action.name === 'logout' ? 'btn-outline-danger' : 'btn-outline-secondary' %> btn-sm w-100 text-start d-flex align-items-center">
+                   <% if (action.icon) { %>
+                     <i class="<%= action.icon %> me-2"></i>
+                   <% } %>
+                   <%= label %>
+                 </button>
+               </form>
+             </li>
+        <% } else { %>
+             <li class="mb-1">
+               <a class="btn btn-outline-secondary btn-sm w-100 text-start d-flex align-items-center" href="<%= href %>">
+                 <% if (action.icon) { %>
+                   <i class="<%= action.icon %> me-2"></i>
+                 <% } %>
+                 <%= label %>
+               </a>
+             </li>
+        <% } %>
+      <% }); %>
+    </ul>
+  </div>
+<% } else { %>
+  <div class="d-flex">
+    <a class="btn btn-outline-primary me-2" href="/signup">Sign up</a>
+    <a class="btn btn-primary" href="/login">Login</a>
+  </div>
+<% } %>
