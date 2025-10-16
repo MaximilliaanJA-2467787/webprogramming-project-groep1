@@ -17,10 +17,10 @@ class BaseMiddleware {
     bind() {
         const register = {};
         const fn = this._createMiddleware();
-        
+
         register[this.constructor.name] = fn;
         if (this.name) register[this.name] = fn;
-        
+
         return register;
     }
 
@@ -57,7 +57,6 @@ class BaseMiddleware {
             }
         }
     }
-
 }
 
 module.exports = BaseMiddleware;

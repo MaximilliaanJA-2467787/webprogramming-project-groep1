@@ -3,7 +3,7 @@ const logger = require('../../utils/Logger');
 
 class RequestLoggerMiddleware extends BaseMiddleware {
     constructor() {
-        super("RequestLogger");
+        super('RequestLogger');
     }
 
     async handle(req, res, next) {

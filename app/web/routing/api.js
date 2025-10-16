@@ -1,6 +1,5 @@
 const BaseRouter = require('../../base/router');
 
-
 class ApiRouter extends BaseRouter {
     constructor(express) {
         super(express);

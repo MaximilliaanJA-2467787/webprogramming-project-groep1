@@ -52,9 +52,11 @@ class Logger {
         const { method, url, headers, body } = req;
 
         logger.info(`Incoming request`);
-        console.log(this.colors.info + '┌──────────────────────────────────────────────' + this.colors.reset);
+        console.log(
+            this.colors.info + '┌──────────────────────────────────────────────' + this.colors.reset
+        );
         console.log(this.colors.bright + `    ${method} ${url}` + this.colors.reset);
-        
+
         console.log(this.colors.dim + '    Headers:' + this.colors.reset);
         for (const [key, value] of Object.entries(headers)) {
             console.log(`        ${this.colors.debug}${key}: ${value}${this.colors.reset}`);
@@ -62,20 +64,30 @@ class Logger {
 
         if (body && Object.keys(body).length > 0) {
             console.log(this.colors.dim + '    Body:' + this.colors.reset);
-            console.log(`        ${this.colors.debug}${JSON.stringify(body, null, 2)}${this.colors.reset}`);
+            console.log(
+                `        ${this.colors.debug}${JSON.stringify(body, null, 2)}${this.colors.reset}`
+            );
         }
 
-        console.log(this.colors.info + '└──────────────────────────────────────────────\n' + this.colors.reset);
+        console.log(
+            this.colors.info +
+                '└──────────────────────────────────────────────\n' +
+                this.colors.reset
+        );
     }
 
     logError(err) {
-        console.log(this.colors.error + '┌─ ERROR ───────────────────────────────────────' + this.colors.reset);
+        console.log(
+            this.colors.error +
+                '┌─ ERROR ───────────────────────────────────────' +
+                this.colors.reset
+        );
 
         if (err instanceof Error) {
             console.log(this.colors.bright + `    ${err.name}: ${err.message}` + this.colors.reset);
             if (err.stack) {
                 console.log(this.colors.dim + '    Stack trace:' + this.colors.reset);
-                err.stack.split('\n').forEach(line => {
+                err.stack.split('\n').forEach((line) => {
                     console.log(`        ${this.colors.debug}${line.trim()}${this.colors.reset}`);
                 });
             }
@@ -83,9 +95,12 @@ class Logger {
             console.log(this.colors.bright + `    ${err}` + this.colors.reset);
         }
 
-        console.log(this.colors.error + '└──────────────────────────────────────────────\n' + this.colors.reset);
+        console.log(
+            this.colors.error +
+                '└──────────────────────────────────────────────\n' +
+                this.colors.reset
+        );
     }
-
 }
 
 const logger = new Logger();
