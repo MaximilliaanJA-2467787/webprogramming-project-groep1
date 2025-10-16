@@ -29,6 +29,7 @@
     "doc": "docs"
   },
   "scripts": {
+    "prettier": "npx prettier --write 'app/**/*.js'",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "dependencies": {
@@ -37,5 +38,8 @@
     "express": "^5.1.0",
     "express-ejs-layouts": "^2.5.1",
     "express-session": "^1.18.2"
+  },
+  "devDependencies": {
+    "prettier": "^3.6.2"
   }
 }
