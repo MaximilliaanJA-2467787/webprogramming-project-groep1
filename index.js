@@ -9,8 +9,6 @@ const Logger = require('./app/utils/Logger');
 // Init the app
 app.init();
 
-
-
 // Load middleware and routes
 app.bindPreMiddlewares();
 app.bindRoutes();

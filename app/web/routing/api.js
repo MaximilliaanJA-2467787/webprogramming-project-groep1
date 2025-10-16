@@ -8,8 +8,7 @@ class ApiRouter extends BaseRouter {
 
     bind() {
         this.group('/v1', (apiRouter) => {
-            apiRouter.get('/', 'TestController::index');
-            apiRouter.get('/health', 'TestController::health');
+            apiRouter.get('/health', 'HealthController::health');
         });
 
         super.bind();

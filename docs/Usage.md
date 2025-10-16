@@ -2,6 +2,12 @@
 
 This document explains how to define and register **controllers**, **routes**, and **middleware** in your application.
 
+**You learn best by example, take a look at:**
+- `app/index.js` for route/middleware registering
+- `app/web/routing/error.js` for route creation
+- `app/web/middleware/RequestLoggerMiddleware.js` for middleware creation
+- `app/web/controllers/ErrorController.js` for controller creation and rendering pages with layouts and data
+
 ---
 
 ## 1. Controllers

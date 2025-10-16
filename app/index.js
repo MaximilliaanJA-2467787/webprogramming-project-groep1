@@ -6,18 +6,26 @@ class App extends ExpressApp {
     }
 
     bindPreMiddlewares() {
+        // Log each request
         this.bindMiddlewareModule('RequestLogger');
     }
 
     bindRoutes() {
-        this.bindRouteModule('test', '/tests');
+        // Web routes have no prefix
         this.bindRouteModule('web');
-        this.bindRouteModule('error', '/error');
+
+        // Api has prefix /api
         this.bindRouteModule('api', '/api');
+
+        // Errors have prefix /error
+        this.bindRouteModule('error', '/error');
     }
 
     bindPostMiddlewares() {
+        // If no error and no route matches yet
         this.bindMiddlewareModule('FallbackHandler');
+
+        // As last
         this.bindMiddlewareModule('ErrorHandler');
     }
 }
