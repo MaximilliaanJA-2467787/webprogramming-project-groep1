@@ -3,7 +3,6 @@ const MiddlewareBase = require('./MiddlewareBase');
 const config = require('../config/config');
 
 class ErrorHandlerMiddleware extends MiddlewareBase {
-    
     handleError(err, req, res, next) {
         // Skip non-error values
         if (!(err instanceof Error)) return next();
@@ -25,7 +24,6 @@ class ErrorHandlerMiddleware extends MiddlewareBase {
         // Optional cleanup logic
     }
 }
-
 
 const errorHandlerMiddleware = new ErrorHandlerMiddleware();
 module.exports = errorHandlerMiddleware;

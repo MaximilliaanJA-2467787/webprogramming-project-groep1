@@ -1,4 +1,4 @@
-const ControllerBase = require("./ControllerBase");
+const ControllerBase = require('./ControllerBase');
 
 class UserController extends ControllerBase {
     constructor() {
@@ -10,13 +10,11 @@ class UserController extends ControllerBase {
 
         if (user == null) return res.redirect('/auth');
 
-        res.render(
-            'pages/user/index', {
-                message: "Message from the user controller!",
-                layout: 'layouts/default',
-                user: user,
-            }
-        );
+        res.render('pages/user/index', {
+            message: 'Message from the user controller!',
+            layout: 'layouts/default',
+            user: user,
+        });
     }
 }
 

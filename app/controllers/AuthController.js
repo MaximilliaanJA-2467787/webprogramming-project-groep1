@@ -1,4 +1,4 @@
-const ControllerBase = require("./ControllerBase");
+const ControllerBase = require('./ControllerBase');
 
 class AuthController extends ControllerBase {
     constructor() {
@@ -6,27 +6,16 @@ class AuthController extends ControllerBase {
     }
 
     async index(req, res, next) {
-
-
-        res.render(
-            'pages/auth/index', {
-                message: "Message from the auth controller!",
-                layout: 'layouts/default'
-            }
-        );
-
-
+        res.render('pages/auth/index', {
+            message: 'Message from the auth controller!',
+            layout: 'layouts/default',
+        });
     }
 
-    validateLogin(req, res) {
+    validateLogin(req, res) {}
+    async login(req, res) {}
 
-    }
-    async login(req, res) {
-
-    }
-
-    async logout(req, res) {
-    }
+    async logout(req, res) {}
 }
 
 const authController = new AuthController();
