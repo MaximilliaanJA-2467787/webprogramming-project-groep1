@@ -1,15 +1,23 @@
 {
-  "name": "web-programming-project",
+  "name": "project",
   "version": "1.0.0",
-  "main": "app.js",
-  "type": "module",
+  "description": "UHasselt Web Project",
+  "license": "MIT",
+  "author": "Mathijs Follon, Maximiliaan Jansen",
+  "type": "commonjs",
+  "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "start": "node index.js",
+    "dev": "nodemon index.js"
   },
   "dependencies": {
-    "better-sqlite3": "^12.2.0",
+    "better-sqlite3": "^12.4.1",
+    "chalk": "^5.6.2",
     "ejs": "^3.1.10",
     "express": "^5.1.0",
-    "express-validator": "^7.2.1"
+    "express-ejs-layouts": "^2.5.1",
+    "express-session": "^1.18.2",
+    "morgan": "^1.10.1",
+    "rotating-file-stream": "^3.2.7"
   }
 }

@@ -1,54 +1,87 @@
-import express from "express";
-import { InitializeDatabase } from "./db.js";
+const express = require('express');
+const config = require('./app/config/config');
+const expressLayouts = require('express-ejs-layouts');
+const session = require('express-session')
+const setupLogger = require("./app/debug/logger");
+
+
+// Import database
+const db = require('./app/database');
+
+// Import route loader
+const loadRoutes = require('./app/routes/routing')
+
+/**
+ * App setup
+ */
 
 const app = express();
-const port = process.env.PORT || 8080; // Set by Docker Entrypoint or use 8080
 
-// set the view engine to ejs
-// app.set("view engine", "ejs");
+// View engine setup
+app.set('view engine', config.viewEngine);
+app.set('views', config.viewsPath);
+app.use(expressLayouts);
+app.set('layout', 'layouts/default');
 
-// process.env.DEPLOYMENT is set by Docker Entrypoint
-if (!process.env.DEPLOYMENT) {
-  console.info("Development mode");
-  // Serve static files from the "public" directory
-  app.use(express.static("public"));
-}
 
-// Middleware for serving static files
-app.use(express.static("public"));
+/**
+ * Middleware setup
+ */
 
-// Middleware for parsing JSON bodies
-app.use(express.json());
+// Auth middleware
+app.use(session(
+  {
+    secret: "Session-Key",
+    resave: false,
+    saveUninitialized: true,
+    cookie: {
+      maxAge: 60000
+    },
+  }
+));
 
-// Middleware for debug logging
-app.use((request, response, next) => {
-  console.log(
-    `Request URL: ${request.url} @ ${new Date().toLocaleString("nl-BE")}`
-  );
-  next();
+// Logging middleware
+setupLogger(app);
+
+// Parse JSON bodies
+app.use(express.json()); 
+
+ // Serve static files
+app.use(express.static(config.publicPath));
+
+/**
+ * Database initialization
+ */
+db.init();
+
+// Load Routes
+loadRoutes(app);
+
+/**
+ * Default routes
+ */
+app.get('/health', (req, res) => {
+    res.json({ status: 'ok', timestamp: new Date().toISOString() })
 });
 
-app.get("/", (request, response) => {
-  response.send("Hello World!");
+
+app.get(/^(?!\/(css|js|images|fonts|assets)\/|\/favicon\.ico$).*/, (req, res) => {
+  res.redirect('/error/404');
 });
 
-// Your routes here ...
 
-// Middleware for unknown routes
-// Must be last in pipeline
-app.use((request, response, next) => {
-  response.status(404).send("Sorry can't find that!");
+
+app.use((err, req, res, next) => {
+  // Should never reach this due to ErrorHandler middleware registered in loadRoutes()
+  console.error('Unhandled error:', err);
+
+  if (res.headersSent) {
+    return next(err);
+  }
+
+  res.redirect('/error/500');
 });
 
-// Middleware for error handling
-app.use((error, request, response, next) => {
-  console.error(error.stack);
-  response.status(500).send("Something broke!");
-});
 
-// App starts here
-// InitializeDatabase();
-app.listen(port, () => {
-  console.log(`Server is running on http://localhost:${port}`);
-});
 
+module.exports = app;
