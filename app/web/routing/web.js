@@ -6,17 +6,14 @@ class WebRouter extends BaseRouter {
     }
 
     bind() {
-
         // Visible for all:
         this.get('/', 'GuestController::index', { name: 'home' });
         this.get('/support', 'GuestController::support', { name: 'support' });
-
 
         // Testing auth middleware
         this.get('/profile', 'UserAuth', (req, res) => {
             res.send('Profile');
         });
-
 
         super.bind();
     }

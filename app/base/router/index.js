@@ -131,7 +131,7 @@ class Router {
 
         this._routes.forEach((route) => {
             let info = route.name ? 'with name: ' + route.name : '';
-            logger.success(`[${this.name}] Bound route: '${this.basePath+route.route}' ${info}`);
+            logger.success(`[${this.name}] Bound route: '${this.basePath + route.route}' ${info}`);
         });
     }
 
