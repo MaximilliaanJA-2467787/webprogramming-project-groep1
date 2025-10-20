@@ -76,7 +76,7 @@ class ExpressApp {
 
     listen() {
         return this.express.listen(this.port, () => {
-            logger.success(`Server running on port ${this.port}`);
+            logger.success(`Server running on port https://localhost:${this.port}/`);
             logger.info(`Environment: ${config.env}`);
         });
     }
