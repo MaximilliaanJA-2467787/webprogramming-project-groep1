@@ -2,7 +2,6 @@ const express = require('express');
 const config = require('../config');
 const expressLayouts = require('express-ejs-layouts');
 const session = require('express-session');
-const Logger = require('../utils/Logger');
 const path = require('path');
 const fs = require('fs');
 const logger = require('../utils/Logger');
@@ -71,14 +70,14 @@ class ExpressApp {
         }
 
         const MiddlewareModule = require(path.join(config.paths.middleware, middlewareFile));
-        logger.info(`Bound middleware: ${middlewareFile}`);
+        logger.success(`Bound middleware: ${middlewareFile}`);
         this.express.use(MiddlewareModule[middlewareName]);
     }
 
     listen() {
         return this.express.listen(this.port, () => {
-            Logger.success(`Server running on port ${this.port}`);
-            Logger.info(`Environment: ${config.env}`);
+            logger.success(`Server running on port ${this.port}`);
+            logger.info(`Environment: ${config.env}`);
         });
     }
 }

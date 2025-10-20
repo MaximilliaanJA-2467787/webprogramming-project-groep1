@@ -13,6 +13,13 @@ class GuestController extends BaseController {
             layout: layout('default-layout'),
         });
     }
+
+    support(req, res) {
+        res.render(view('guest/support'), {
+            title: 'Support | Cashless',
+            layout: layout('default-layout'),
+        });
+    }
 }
 
 const controller = new GuestController();

@@ -8,6 +8,7 @@ class Router {
 
     constructor(expressApp, basePath = '') {
         if (!expressApp) throw new Error('Express instance required for Router');
+        this.name = this.constructor.name;
         this.express = expressApp;
         this.basePath = basePath;
         this.controllerRegister = {};
@@ -130,7 +131,7 @@ class Router {
 
         this._routes.forEach((route) => {
             let info = route.name ? 'with name: ' + route.name : '';
-            logger.info(`Bound route: ${route.route} ${info}`);
+            logger.success(`[${this.name}] Bound route: '${this.basePath+route.route}' ${info}`);
         });
     }
 
@@ -138,7 +139,7 @@ class Router {
         const groupRouter = new Router(this.express, path.posix.join(this.basePath, prefix));
         groupRouter.controllerRegister = this.controllerRegister;
         groupRouter.middlewareRegister = this.middlewareRegister;
-
+        groupRouter.name = this.name;
         callback(groupRouter);
         groupRouter.bind();
     }
