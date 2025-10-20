@@ -120,6 +120,18 @@ wallets
 - currency (EUR, USD, etc)
 - created_at
 
+categories
+- id
+- name (drank/eten/merch, andere)
+
+items
+- id
+- vendor_id
+- naam
+- category_id (FK) 
+- price_tokens
+- popularity_count
+
 transactions
 - id
 - walletSource_id (FK) nullable
@@ -137,18 +149,6 @@ vendors
 - user_id (FK)
 - name
 - location
-
-categories
-- id
-- name (drank/eten/merch, andere)
-
-items
-- id
-- vendor_id
-- naam
-- category_id (FK) 
-- price_tokens
-- popularity_count
 
 group_pots
 - id
