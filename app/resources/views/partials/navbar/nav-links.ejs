@@ -1,0 +1,19 @@
+<% navLinks = navLinks || []; %>
+<% navLinks.forEach(function(link) {
+     const href = link.href ? link.href : (link.route ? '/' + link.route : '#');
+     const isActive = (link.route && link.route === currentRoute);
+%>
+  <% if (desktop) { %>
+    <li class="nav-item">
+      <a class="nav-link <% if (isActive) { %>fw-semibold text-primary<% } %>" href="<%= href %>">
+        <%= link.name %>
+      </a>
+    </li>
+  <% } else { %>
+    <li class="nav-item mb-1">
+      <a class="nav-link px-2 <% if (isActive) { %>fw-semibold text-primary<% } %>" href="<%= href %>">
+        <%= link.name %>
+      </a>
+    </li>
+  <% } %>
+<% }); %>
