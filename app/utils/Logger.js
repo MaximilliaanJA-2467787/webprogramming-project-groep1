@@ -1,4 +1,4 @@
-class Logger {
+class LoggerInstance {
     constructor() {
         this.colors = {
             reset: '\x1b[0m',
@@ -51,7 +51,7 @@ class Logger {
     logRequest(req) {
         const { method, url, headers, body } = req;
 
-        logger.info(`Incoming request`);
+        this.info(`Incoming request`);
         console.log(
             this.colors.info + '┌──────────────────────────────────────────────' + this.colors.reset
         );
@@ -103,5 +103,5 @@ class Logger {
     }
 }
 
-const logger = new Logger();
-module.exports = logger;
+const Logger = new LoggerInstance();
+module.exports = Logger;

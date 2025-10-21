@@ -1,4 +1,4 @@
-const httpErrors = {
+const HTTPErrors = {
     400: {
         title: 'Bad Request',
         message: 'The request could not be understood or was missing required parameters.',
@@ -151,9 +151,9 @@ const httpErrors = {
     },
 };
 
-function getErrorData(status) {
-    if (httpErrors[status]) {
-        return { status, ...httpErrors[status] };
+function HttpError(status) {
+    if (HTTPErrors[status]) {
+        return { status, ...HTTPErrors[status] };
     } else {
         return {
             status,
@@ -163,4 +163,4 @@ function getErrorData(status) {
     }
 }
 
-module.exports = getErrorData;
+module.exports = HttpError;
