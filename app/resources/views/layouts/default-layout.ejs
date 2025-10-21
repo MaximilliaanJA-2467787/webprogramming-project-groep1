@@ -6,17 +6,17 @@
   <title>
     <%= title %>
   </title>
-  <%- include('../partials/static/css-bootstrap.ejs') %>
+  <%- include('../partials/static/bootstrap.ejs') %>
 
 </head>
 <body>
-  <%- include('../partials/navbar.ejs', { user: user, brand: 'CashLess', logoUrl: '/images/logo.png' }) %>
+  <%- include('../partials/navbar.ejs', { user: user, brand: 'CashLess', logoUrl: '/images/logo.png', currentRoute: currentRoute }) %>
 
   <main class="container">
     <%- body %>
   </main>
   <%- include('../partials/footer.ejs') %>
-  <%- include('../partials/static/js-bootstrap.ejs') %>
+  <script src="/js/payments/qrcode-modal.js"></script>
 </body>
 
 </html>
