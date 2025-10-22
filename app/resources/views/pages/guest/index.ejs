@@ -1,3 +1,235 @@
-<div>hello this is guest index</div>
+<!-- Hero Section -->
+<section class="bg-primary text-white py-5" style="background: linear-gradient(135deg, #007bff 0%, #0056b3 100%) !important; margin-top: -1px;">
+  <div class="container">
+    <div class="row align-items-center">
+      <div class="col-lg-6">
+        <h1 class="display-4 fw-bold mb-4" style="color: white !important;">Welcome to CashLess Events</h1>
+        <p class="lead mb-4" style="color: white !important;">Experience seamless cashless payments at events with our innovative token-based system. Buy tokens, spend freely, and enjoy group payments with friends.</p>
+        <div class="d-flex flex-wrap gap-3">
+          <a href="/auth/register" class="btn btn-light btn-lg px-4" style="color: #007bff !important;">
+            <i class="bi bi-person-plus me-2"></i>Get Started
+          </a>
+          <a href="/auth/login" class="btn btn-outline-light btn-lg px-4" style="color: white !important; border-color: white !important;">
+            <i class="bi bi-box-arrow-in-right me-2"></i>Login
+          </a>
+        </div>
+      </div>
+      <div class="col-lg-6 text-center">
+        <div class="hero-image-container">
+          <i class="bi bi-phone display-1 text-white-50 mb-3"></i>
+          <div class="mockup-card bg-white rounded-3 p-3 shadow-lg d-inline-block">
+            <div class="d-flex justify-content-between align-items-center mb-2">
+              <span class="badge bg-primary">Tokens: 150</span>
+              <small class="text-muted">€15.00</small>
+            </div>
+            <div class="text-start">
+              <small class="text-muted">Recent Purchase</small>
+              <div class="fw-semibold">Beer - Bar Central</div>
+              <small class="text-success">-5 tokens</small>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
 
-<%- include('../../partials/payments/qrcode-modal.ejs') %>
+<!-- Features Section -->
+<section class="features-section py-5">
+  <div class="container">
+    <div class="row text-center mb-5">
+      <div class="col-12">
+        <h2 class="display-5 fw-bold mb-3">Why Choose CashLess?</h2>
+        <p class="lead text-muted">Revolutionary features designed for modern events</p>
+      </div>
+    </div>
+    
+    <div class="row g-4">
+      <!-- Feature 1: Token System -->
+      <div class="col-md-6 col-lg-4">
+        <div class="feature-card h-100 p-4 border rounded-3 shadow-sm">
+          <div class="feature-icon bg-primary text-white rounded-circle d-inline-flex align-items-center justify-content-center mb-3" style="width: 60px; height: 60px;">
+            <i class="bi bi-currency-exchange fs-4"></i>
+          </div>
+          <h4 class="fw-semibold mb-3">Token-Based System</h4>
+          <p class="text-muted">Convert real money to virtual tokens for secure, fast transactions. No need to carry cash or cards.</p>
+          <ul class="list-unstyled text-muted">
+            <li><i class="bi bi-check-circle text-success me-2"></i>Instant conversion</li>
+            <li><i class="bi bi-check-circle text-success me-2"></i>Secure transactions</li>
+            <li><i class="bi bi-check-circle text-success me-2"></i>Real-time balance</li>
+          </ul>
+        </div>
+      </div>
+
+      <!-- Feature 2: Group Payments -->
+      <div class="col-md-6 col-lg-4">
+        <div class="feature-card h-100 p-4 border rounded-3 shadow-sm">
+          <div class="feature-icon bg-success text-white rounded-circle d-inline-flex align-items-center justify-content-center mb-3" style="width: 60px; height: 60px;">
+            <i class="bi bi-people fs-4"></i>
+          </div>
+          <h4 class="fw-semibold mb-3">Group Payments</h4>
+          <p class="text-muted">Create shared pots with friends and split expenses easily. Perfect for group outings and shared purchases.</p>
+          <ul class="list-unstyled text-muted">
+            <li><i class="bi bi-check-circle text-success me-2"></i>Shared wallets</li>
+            <li><i class="bi bi-check-circle text-success me-2"></i>Easy settlements</li>
+            <li><i class="bi bi-check-circle text-success me-2"></i>Invite friends</li>
+          </ul>
+        </div>
+      </div>
+
+      <!-- Feature 3: QR Code Payments -->
+      <div class="col-md-6 col-lg-4">
+        <div class="feature-card h-100 p-4 border rounded-3 shadow-sm">
+          <div class="feature-icon bg-warning text-white rounded-circle d-inline-flex align-items-center justify-content-center mb-3" style="width: 60px; height: 60px;">
+            <i class="bi bi-qr-code fs-4"></i>
+          </div>
+          <h4 class="fw-semibold mb-3">QR Code Payments</h4>
+          <p class="text-muted">Quick and contactless payments using QR codes. Just scan and pay - it's that simple!</p>
+          <ul class="list-unstyled text-muted">
+            <li><i class="bi bi-check-circle text-success me-2"></i>Contactless</li>
+            <li><i class="bi bi-check-circle text-success me-2"></i>Instant processing</li>
+            <li><i class="bi bi-check-circle text-success me-2"></i>Secure validation</li>
+          </ul>
+        </div>
+      </div>
+
+      <!-- Feature 4: Budget Tracking -->
+      <div class="col-md-6 col-lg-4">
+        <div class="feature-card h-100 p-4 border rounded-3 shadow-sm">
+          <div class="feature-icon bg-info text-white rounded-circle d-inline-flex align-items-center justify-content-center mb-3" style="width: 60px; height: 60px;">
+            <i class="bi bi-graph-up fs-4"></i>
+          </div>
+          <h4 class="fw-semibold mb-3">Budget Tracking</h4>
+          <p class="text-muted">Set spending limits by category and get notifications when you're approaching your budget.</p>
+          <ul class="list-unstyled text-muted">
+            <li><i class="bi bi-check-circle text-success me-2"></i>Category budgets</li>
+            <li><i class="bi bi-check-circle text-success me-2"></i>Smart alerts</li>
+            <li><i class="bi bi-check-circle text-success me-2"></i>Spending insights</li>
+          </ul>
+        </div>
+      </div>
+
+      <!-- Feature 5: Real-time Analytics -->
+      <div class="col-md-6 col-lg-4">
+        <div class="feature-card h-100 p-4 border rounded-3 shadow-sm">
+          <div class="feature-icon bg-danger text-white rounded-circle d-inline-flex align-items-center justify-content-center mb-3" style="width: 60px; height: 60px;">
+            <i class="bi bi-bar-chart fs-4"></i>
+          </div>
+          <h4 class="fw-semibold mb-3">Real-time Analytics</h4>
+          <p class="text-muted">Track your spending patterns, popular items, and event insights with interactive dashboards.</p>
+          <ul class="list-unstyled text-muted">
+            <li><i class="bi bi-check-circle text-success me-2"></i>Spending patterns</li>
+            <li><i class="bi bi-check-circle text-success me-2"></i>Popular items</li>
+            <li><i class="bi bi-check-circle text-success me-2"></i>Heat maps</li>
+          </ul>
+        </div>
+      </div>
+
+      <!-- Feature 6: Mobile Optimized -->
+      <div class="col-md-6 col-lg-4">
+        <div class="feature-card h-100 p-4 border rounded-3 shadow-sm">
+          <div class="feature-icon bg-secondary text-white rounded-circle d-inline-flex align-items-center justify-content-center mb-3" style="width: 60px; height: 60px;">
+            <i class="bi bi-phone fs-4"></i>
+          </div>
+          <h4 class="fw-semibold mb-3">Mobile Optimized</h4>
+          <p class="text-muted">Fully responsive design that works perfectly on all devices. Access your wallet anywhere, anytime.</p>
+          <ul class="list-unstyled text-muted">
+            <li><i class="bi bi-check-circle text-success me-2"></i>Responsive design</li>
+            <li><i class="bi bi-check-circle text-success me-2"></i>Offline support</li>
+            <li><i class="bi bi-check-circle text-success me-2"></i>Fast loading</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- How It Works Section -->
+<section class="how-it-works-section bg-light py-5">
+  <div class="container">
+    <div class="row text-center mb-5">
+      <div class="col-12">
+        <h2 class="display-5 fw-bold mb-3">How It Works</h2>
+        <p class="lead text-muted">Get started in just a few simple steps</p>
+      </div>
+    </div>
+    
+    <div class="row g-4">
+      <div class="col-md-4">
+        <div class="text-center">
+          <div class="step-number bg-primary text-white rounded-circle d-inline-flex align-items-center justify-content-center mb-3" style="width: 80px; height: 80px; font-size: 2rem; font-weight: bold;">1</div>
+          <h4 class="fw-semibold mb-3">Create Account</h4>
+          <p class="text-muted">Sign up for free and verify your account. It takes less than 2 minutes!</p>
+        </div>
+      </div>
+      
+      <div class="col-md-4">
+        <div class="text-center">
+          <div class="step-number bg-success text-white rounded-circle d-inline-flex align-items-center justify-content-center mb-3" style="width: 80px; height: 80px; font-size: 2rem; font-weight: bold;">2</div>
+          <h4 class="fw-semibold mb-3">Buy Tokens</h4>
+          <p class="text-muted">Convert your real money to virtual tokens. Top up your wallet anytime during the event.</p>
+        </div>
+      </div>
+      
+      <div class="col-md-4">
+        <div class="text-center">
+          <div class="step-number bg-warning text-white rounded-circle d-inline-flex align-items-center justify-content-center mb-3" style="width: 80px; height: 80px; font-size: 2rem; font-weight: bold;">3</div>
+          <h4 class="fw-semibold mb-3">Start Spending</h4>
+          <p class="text-muted">Scan QR codes, join group payments, and enjoy cashless transactions throughout the event!</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- CTA Section -->
+<section class="cta-section py-5">
+  <div class="container">
+    <div class="row">
+      <div class="col-12 text-center">
+        <h2 class="display-5 fw-bold mb-4">Ready to Go CashLess?</h2>
+        <p class="lead text-muted mb-4">Join thousands of event-goers who have already made the switch to seamless cashless payments.</p>
+        <div class="d-flex flex-wrap justify-content-center gap-3">
+          <a href="/auth/register" class="btn btn-primary btn-lg px-5">
+            <i class="bi bi-rocket-takeoff me-2"></i>Start Your Journey
+          </a>
+          <a href="/support" class="btn btn-outline-secondary btn-lg px-5">
+            <i class="bi bi-question-circle me-2"></i>Need Help?
+          </a>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Stats Section -->
+<section class="stats-section bg-dark text-white py-5">
+  <div class="container">
+    <div class="row text-center">
+      <div class="col-md-3 col-6 mb-4">
+        <div class="stat-item">
+          <h3 class="display-4 fw-bold text-primary">10K+</h3>
+          <p class="mb-0">Active Users</p>
+        </div>
+      </div>
+      <div class="col-md-3 col-6 mb-4">
+        <div class="stat-item">
+          <h3 class="display-4 fw-bold text-success">€500K+</h3>
+          <p class="mb-0">Transactions</p>
+        </div>
+      </div>
+      <div class="col-md-3 col-6 mb-4">
+        <div class="stat-item">
+          <h3 class="display-4 fw-bold text-warning">50+</h3>
+          <p class="mb-0">Events</p>
+        </div>
+      </div>
+      <div class="col-md-3 col-6 mb-4">
+        <div class="stat-item">
+          <h3 class="display-4 fw-bold text-info">99.9%</h3>
+          <p class="mb-0">Uptime</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>

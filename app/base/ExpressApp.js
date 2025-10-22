@@ -21,6 +21,17 @@ class ExpressApp {
         this.express.use(express.json());
         this.express.use(express.urlencoded({ extended: true }));
         this.express.use(express.static(config.paths.public));
+        
+        // Session configuration
+        this.express.use(session({
+            secret: config.session.secret,
+            resave: false,
+            saveUninitialized: false,
+            cookie: {
+                secure: false, // Set to true in production with HTTPS
+                maxAge: 24 * 60 * 60 * 1000 // 24 hours
+            }
+        }));
         this.server = null;
 
         this.init(this.express);

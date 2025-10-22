@@ -9,10 +9,10 @@
   <%- include('../partials/static/bootstrap.ejs') %>
 
 </head>
-<body>
+<body class="d-flex flex-column min-vh-100">
   <%- include('../partials/navbar.ejs', { user: user, brand: 'CashLess', logoUrl: '/images/logo.png', currentRoute: currentRoute }) %>
 
-  <main class="container">
+  <main class="flex-grow-1">
     <%- body %>
   </main>
   <%- include('../partials/footer.ejs') %>

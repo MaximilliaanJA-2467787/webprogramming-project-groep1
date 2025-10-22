@@ -34,6 +34,10 @@ const config = {
         middleware: MIDDLEWARE_DIR,
     },
 
+    session: {
+        secret: 'cashless-secret-key-change-in-production'
+    },
+
     // View engine
     view_engine: 'ejs',
 

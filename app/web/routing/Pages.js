@@ -44,8 +44,36 @@ const Pages = {
     'support': {
         name: 'Support',
         layout: 'layouts/default-layout',
-        view: 'pages/support',
+        view: 'pages/guest/support',
         route: '/support'
+    },
+
+    'login': {
+        name: 'Login',
+        layout: 'layouts/default-layout',
+        view: 'pages/auth/login',
+        route: '/auth/login'
+    },
+
+    'register': {
+        name: 'Register',
+        layout: 'layouts/default-layout',
+        view: 'pages/auth/register',
+        route: '/auth/register'
+    },
+
+    'forgotPassword': {
+        name: 'Forgot Password',
+        layout: 'layouts/default-layout',
+        view: 'pages/auth/forgot-password',
+        route: '/auth/forgot-password'
+    },
+
+    'resetPassword': {
+        name: 'Reset Password',
+        layout: 'layouts/default-layout',
+        view: 'pages/auth/reset-password',
+        route: '/auth/reset-password'
     }
 };
 
