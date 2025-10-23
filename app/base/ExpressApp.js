@@ -3,6 +3,11 @@ const config = require('../config/Config.js');
 const expressLayouts = require('express-ejs-layouts');
 const session = require('express-session');
 const Logger = require("../utils/Logger.js");
+const uuid = require('uuid');
+const Database = require('better-sqlite3');
+
+const SqliteStore = require("better-sqlite3-session-store")(session)
+const sessionDb = new Database('sessions.sqlite');;
 
 class ExpressApp {
     constructor() {
@@ -23,12 +28,21 @@ class ExpressApp {
         
         // Session configuration
         this.express.use(session({
+            genid: () => uuid.v4(),
+            store: new SqliteStore({
+                client: sessionDb,
+                expired: {
+                    clear: true,
+                    intervalMs: 24 * 60 * 60 * 1000
+                }
+            }),
             secret: config.session.secret,
             resave: false,
             saveUninitialized: false,
             cookie: {
-                secure: false, // Set to true in production with HTTPS
-                maxAge: 24 * 60 * 60 * 1000 // 24 hours
+                secure: config.env === 'production',
+                httpOnly: true,
+                maxAge: 24 * 60 * 60 * 1000
             }
         }));
         this.server = null;

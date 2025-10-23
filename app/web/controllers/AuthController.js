@@ -1,5 +1,3 @@
-const UserModel = require("../../data/models/UserModel");
-
 const AuthController = {
     
     // GET /auth/login - Show login page

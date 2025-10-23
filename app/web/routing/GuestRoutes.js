@@ -1,4 +1,5 @@
 const GuestController = require("../controllers/GuestController");
+const authorizeRole = require("../middleware/AuthRole");
 const Pages = require("./Pages");
 
 function loadGuestRoutes(app) {
