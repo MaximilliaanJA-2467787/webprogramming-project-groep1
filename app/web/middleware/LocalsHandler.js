@@ -13,9 +13,7 @@ const LocalsHandler = (req, res, next) => {
         { page: Pages.budgets, icon: 'bi bi-piggy-bank' },
     ];
 
-    res.locals.user = {
-        name: 'Mathijs',
-    };
+    res.locals.user = req.session.user || null;
     res.locals.brand = 'CashLess';
     res.locals.logoUrl = '/images/logo.png';
     res.locals.navLinks = navLinks;

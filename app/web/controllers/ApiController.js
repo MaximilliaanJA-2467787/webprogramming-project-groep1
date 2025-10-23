@@ -17,7 +17,7 @@ const ApiController = {
                 console.error('QR generation error', err);
                 return res.status(500).json({ error: 'Failed to generate QR code' });
             }
-        }
+        },
     }
 
 }

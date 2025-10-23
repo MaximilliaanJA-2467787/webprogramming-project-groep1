@@ -17,9 +17,8 @@ class ExpressApp {
         this.express.set('views', config.paths.views);
         this.express.use(expressLayouts);
         this.express.set('layout', 'layouts/default-layout');
-
-        this.express.use(express.json());
         this.express.use(express.urlencoded({ extended: true }));
+        this.express.use(express.json());
         this.express.use(express.static(config.paths.public));
         
         // Session configuration

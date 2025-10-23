@@ -96,12 +96,12 @@
             <!-- Social Login Options -->
             <div class="row g-3 mb-4">
               <div class="col-6">
-                <button type="button" class="btn btn-outline-danger w-100">
+                <button type="button" id="google-btn" class="btn btn-outline-danger w-100">
                   <i class="bi bi-google me-2"></i>Google
                 </button>
               </div>
               <div class="col-6">
-                <button type="button" class="btn btn-outline-primary w-100">
+                <button type="button" id="facebook-btn" class="btn btn-outline-primary w-100">
                   <i class="bi bi-facebook me-2"></i>Facebook
                 </button>
               </div>
@@ -134,6 +134,15 @@
 </section>
 
 <script>
+
+document.getElementById('google-btn').addEventListener('click', function() {
+  alert('Implementing google auth soon!');
+});
+
+document.getElementById('facebook-btn').addEventListener('click', function() {
+  alert('Implementing facebook auth soon!');
+})
+
 // Password toggle functionality
 document.getElementById('togglePassword').addEventListener('click', function() {
   const passwordField = document.getElementById('password');
