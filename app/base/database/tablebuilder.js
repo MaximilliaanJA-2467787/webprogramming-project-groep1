@@ -24,11 +24,14 @@ class ColumnBuilder {
         this._type = 'INTEGER';
         return this;
     }
+    /**
+     * zelfde als float(24)
+     */
     real() {
         this._type = 'REAL';
         return this;
     }
-    text() {
+    tekst() {
         this._type = 'TEXT';
         return this;
     }
@@ -288,13 +291,12 @@ const CommonColumns = {
     },
 
     uuid(builder, unique = true) {
-        const col = builder.col('uuid').text().notNull();
+        const col = builder.col('uuid').tekst().notNull();
         return unique ? col.unique() : col;
     },
 
-    timestamps(builder) {
+    createdAt(builder) {
         builder.col('created_at').datetime().default('CURRENT_TIMESTAMP');
-        builder.col('updated_at').datetime().default('CURRENT_TIMESTAMP');
         return builder;
     },
 

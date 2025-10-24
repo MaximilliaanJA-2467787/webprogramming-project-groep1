@@ -124,9 +124,15 @@ categories
 - id
 - name (drank/eten/merch, andere)
 
+vendors
+- id
+- user_id (FK)
+- name
+- location
+
 items
 - id
-- vendor_id
+- vendor_id (FK)
 - naam
 - category_id (FK) 
 - price_tokens
@@ -143,12 +149,6 @@ transactions
 - location
 - timestamp
 - metadata json
-
-vendors
-- id
-- user_id (FK)
-- name
-- location
 
 group_pots
 - id
