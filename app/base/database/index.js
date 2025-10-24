@@ -74,5 +74,5 @@ class Database {
 const database = new Database();
 module.exports = {
     sqlite: sqlite,
-    database: database,
+    databaseRef: database,
 };
