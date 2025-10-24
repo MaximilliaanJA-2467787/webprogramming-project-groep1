@@ -1,19 +1,14 @@
-const BaseController = require('../../base/controller');
-const layout = require('../../base/controller/layout');
-const view = require('../../base/controller/view');
+const GuestController = {
+    
+    index: (req, res) => {
+        return res.render('pages/guest/index');
+    },
 
-class GuestController extends BaseController {
-    constructor() {
-        super();
+    support: (req, res) => {
+        return res.render('pages/guest/support');
     }
 
-    index(req, res) {
-        res.render(view('guest/index'), {
-            title: 'Welcome to CashLess!',
-            layout: layout('default-layout'),
-        });
-    }
 }
 
-const controller = new GuestController();
-module.exports = controller.bind();
+
+module.exports = GuestController;

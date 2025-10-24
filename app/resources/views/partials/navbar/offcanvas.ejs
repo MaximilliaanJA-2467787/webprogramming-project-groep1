@@ -11,7 +11,7 @@
   <div class="offcanvas-body pt-2">
     <!-- Navigation Links -->
     <ul class="nav flex-column mb-4">
-      <%- include('./nav-links.ejs', { navLinks: navLinks, currentRoute: currentRoute, desktop: false }) %>
+      <%- include('./nav-links.ejs', { navLinks: navLinks, currentRoute: currentRoute}) %>
     </ul>
 
     <% if (user) { %>
@@ -28,8 +28,8 @@
       <!-- Modern User Action Buttons -->
       <div class="d-grid gap-2 px-2 mb-3">
         <% (userActions || []).forEach(function(action) {
-             const href = action.href ? action.href : (action.route ? '/' + action.route : '#');
-             const label = action.name.charAt(0).toUpperCase() + action.name.slice(1);
+             const href = action.page.route ? action.page.route : '#';
+             const label = action.page.name;
              if (action.asForm && (action.method || 'post').toLowerCase() === 'post') { %>
                <form action="<%= href %>" method="post" class="m-0">
                  <button type="submit" class="btn <%= action.name === 'logout' ? 'btn-outline-danger' : 'btn-outline-secondary' %> btn-sm text-start">
@@ -46,8 +46,8 @@
     <% } else { %>
       <!-- Auth Buttons -->
       <div class="d-grid gap-2 px-2">
-        <a class="btn btn-primary btn-sm" href="/login">Login</a>
-        <a class="btn btn-outline-primary btn-sm" href="/signup">Sign up</a>
+        <a class="btn btn-primary btn-sm" href="/auth/login">Login</a>
+        <a class="btn btn-outline-primary btn-sm" href="/auth/register">Sign up</a>
       </div>
     <% } %>
   </div>

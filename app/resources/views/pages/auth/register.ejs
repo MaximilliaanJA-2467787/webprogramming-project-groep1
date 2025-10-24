@@ -1,0 +1,370 @@
+<!-- Register Hero Section -->
+<section class="bg-primary text-white py-4" style="background: linear-gradient(135deg, #007bff 0%, #0056b3 100%) !important; margin-top: -1px;">
+  <div class="container">
+    <div class="row justify-content-center">
+      <div class="col-lg-6 text-center">
+        <h1 class="display-5 fw-bold mb-3" style="color: white !important;">Join CashLess</h1>
+        <p class="lead mb-0" style="color: white !important;">Create your account and start your cashless journey</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Register Form Section -->
+<section class="py-5">
+  <div class="container">
+    <div class="row justify-content-center">
+      <div class="col-lg-8 col-md-10">
+        <div class="card shadow-lg border-0">
+          <div class="card-body p-5">
+            <!-- Register Form -->
+            <form id="registerForm" method="POST" action="/auth/register">
+              <div class="text-center mb-4">
+                <img src="/images/logo.png" alt="CashLess Logo" width="60" height="60" class="mb-3">
+                <h3 class="fw-bold text-primary">Create Account</h3>
+                <p class="text-muted">Fill in your details to get started</p>
+              </div>
+
+              <!-- Personal Information Section -->
+              <div class="row mb-4">
+                <div class="col-12">
+                  <h5 class="fw-semibold text-primary mb-3">
+                    <i class="bi bi-person me-2"></i>Personal Information
+                  </h5>
+                </div>
+              </div>
+
+              <div class="row g-3 mb-4">
+                <!-- First Name -->
+                <div class="col-md-6">
+                  <label for="firstName" class="form-label fw-semibold">
+                    <i class="bi bi-person me-2"></i>First Name
+                  </label>
+                  <input type="text" class="form-control" id="firstName" name="firstName" 
+                         placeholder="Enter your first name" required>
+                  <div class="invalid-feedback">
+                    First name is required.
+                  </div>
+                </div>
+
+                <!-- Last Name -->
+                <div class="col-md-6">
+                  <label for="lastName" class="form-label fw-semibold">
+                    <i class="bi bi-person me-2"></i>Last Name
+                  </label>
+                  <input type="text" class="form-control" id="lastName" name="lastName" 
+                         placeholder="Enter your last name" required>
+                  <div class="invalid-feedback">
+                    Last name is required.
+                  </div>
+                </div>
+              </div>
+
+              <!-- Email Field -->
+              <div class="mb-4">
+                <label for="email" class="form-label fw-semibold">
+                  <i class="bi bi-envelope me-2"></i>Email Address
+                </label>
+                <input type="email" class="form-control" id="email" name="email" 
+                       placeholder="Enter your email address" required>
+                <div class="invalid-feedback">
+                  Please provide a valid email address.
+                </div>
+              </div>
+
+              <!-- Account Information Section -->
+              <div class="row mb-4">
+                <div class="col-12">
+                  <h5 class="fw-semibold text-primary mb-3">
+                    <i class="bi bi-shield-lock me-2"></i>Account Security
+                  </h5>
+                </div>
+              </div>
+
+              <!-- Password Field -->
+              <div class="mb-4">
+                <label for="password" class="form-label fw-semibold">
+                  <i class="bi bi-lock me-2"></i>Password
+                </label>
+                <div class="input-group">
+                  <input type="password" class="form-control" id="password" name="password" 
+                         placeholder="Create a strong password" required>
+                  <button class="btn btn-outline-secondary" type="button" id="togglePassword">
+                    <i class="bi bi-eye" id="toggleIcon"></i>
+                  </button>
+                </div>
+                <div class="invalid-feedback">
+                  Password must be at least 8 characters long.
+                </div>
+                <div class="form-text">
+                  <small class="text-muted">
+                    <i class="bi bi-info-circle me-1"></i>
+                    Password must be at least 8 characters and contain letters and numbers.
+                  </small>
+                </div>
+              </div>
+
+              <!-- Confirm Password Field -->
+              <div class="mb-4">
+                <label for="confirmPassword" class="form-label fw-semibold">
+                  <i class="bi bi-lock-fill me-2"></i>Confirm Password
+                </label>
+                <input type="password" class="form-control" id="confirmPassword" name="confirmPassword" 
+                       placeholder="Confirm your password" required>
+                <div class="invalid-feedback">
+                  Passwords do not match.
+                </div>
+              </div>
+
+              <!-- Terms and Conditions -->
+              <div class="mb-4">
+                <div class="form-check">
+                  <input class="form-check-input" type="checkbox" id="agreeTerms" name="agreeTerms" required>
+                  <label class="form-check-label" for="agreeTerms">
+                    I agree to the 
+                    <a href="/terms" class="text-decoration-none text-primary">Terms of Service</a> 
+                    and 
+                    <a href="/privacy" class="text-decoration-none text-primary">Privacy Policy</a>
+                  </label>
+                  <div class="invalid-feedback">
+                    You must agree to the terms and conditions.
+                  </div>
+                </div>
+              </div>
+
+              <!-- Newsletter Subscription -->
+              <div class="mb-4">
+                <div class="form-check">
+                  <input class="form-check-input" type="checkbox" id="newsletter" name="newsletter">
+                  <label class="form-check-label" for="newsletter">
+                    Subscribe to our newsletter for updates and special offers
+                  </label>
+                </div>
+              </div>
+
+              <!-- Submit Button -->
+              <div class="d-grid mb-4">
+                <button type="submit" class="btn btn-primary btn-lg">
+                  <i class="bi bi-person-plus me-2"></i>Create Account
+                </button>
+              </div>
+
+              <!-- Error Messages -->
+              <div id="errorAlert" class="alert alert-danger d-none" role="alert">
+                <i class="bi bi-exclamation-triangle me-2"></i>
+                <span id="errorMessage"></span>
+              </div>
+
+              <!-- Success Messages -->
+              <div id="successAlert" class="alert alert-success d-none" role="alert">
+                <i class="bi bi-check-circle me-2"></i>
+                <span id="successMessage"></span>
+              </div>
+            </form>
+
+            <!-- Divider -->
+            <div class="text-center my-4">
+              <hr class="my-4">
+              <span class="text-muted bg-white px-3">or</span>
+            </div>
+
+            <!-- Social Register Options -->
+            <div class="row g-3 mb-4">
+              <div class="col-6">
+                <button type="button" id="google-btn" class="btn btn-outline-danger w-100">
+                  <i class="bi bi-google me-2"></i>Google
+                </button>
+              </div>
+              <div class="col-6">
+                <button type="button" id="facebook-btn" class="btn btn-outline-primary w-100">
+                  <i class="bi bi-facebook me-2"></i>Facebook
+                </button>
+              </div>
+            </div>
+
+            <!-- Login Link -->
+            <div class="text-center">
+              <p class="text-muted mb-0">
+                Already have an account? 
+                <a href="/auth/login" class="text-decoration-none fw-semibold text-primary">
+                  Sign in here
+                </a>
+              </p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Benefits Section -->
+        <div class="row mt-5 g-4">
+          <div class="col-md-4">
+            <div class="text-center">
+              <div class="bg-primary text-white rounded-circle d-inline-flex align-items-center justify-content-center mb-3" style="width: 60px; height: 60px;">
+                <i class="bi bi-shield-check fs-4"></i>
+              </div>
+              <h6 class="fw-semibold">Secure & Safe</h6>
+              <p class="text-muted small">Bank-level encryption protects your data and transactions.</p>
+            </div>
+          </div>
+          <div class="col-md-4">
+            <div class="text-center">
+              <div class="bg-success text-white rounded-circle d-inline-flex align-items-center justify-content-center mb-3" style="width: 60px; height: 60px;">
+                <i class="bi bi-lightning-charge fs-4"></i>
+              </div>
+              <h6 class="fw-semibold">Fast Payments</h6>
+              <p class="text-muted small">Instant token-based transactions with QR code scanning.</p>
+            </div>
+          </div>
+          <div class="col-md-4">
+            <div class="text-center">
+              <div class="bg-warning text-white rounded-circle d-inline-flex align-items-center justify-content-center mb-3" style="width: 60px; height: 60px;">
+                <i class="bi bi-people fs-4"></i>
+              </div>
+              <h6 class="fw-semibold">Group Features</h6>
+              <p class="text-muted small">Share expenses with friends and split bills easily.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<script>
+document.getElementById('google-btn').addEventListener('click', function() {
+  alert('Implementing google auth soon!');
+});
+
+document.getElementById('facebook-btn').addEventListener('click', function() {
+  alert('Implementing facebook auth soon!');
+})
+
+// Password toggle functionality
+document.getElementById('togglePassword').addEventListener('click', function() {
+  const passwordField = document.getElementById('password');
+  const toggleIcon = document.getElementById('toggleIcon');
+  
+  if (passwordField.type === 'password') {
+    passwordField.type = 'text';
+    toggleIcon.className = 'bi bi-eye-slash';
+  } else {
+    passwordField.type = 'password';
+    toggleIcon.className = 'bi bi-eye';
+  }
+});
+
+// Password strength indicator
+document.getElementById('password').addEventListener('input', function() {
+  const password = this.value;
+  const strengthIndicator = document.getElementById('passwordStrength');
+  
+  // You can add a password strength indicator here if needed
+});
+
+// Form validation
+document.getElementById('registerForm').addEventListener('submit', function(e) {
+  const firstName = document.getElementById('firstName');
+  const lastName = document.getElementById('lastName');
+  const email = document.getElementById('email');
+  const password = document.getElementById('password');
+  const confirmPassword = document.getElementById('confirmPassword');
+  const agreeTerms = document.getElementById('agreeTerms');
+  
+  let isValid = true;
+
+  // Reset previous validation states
+  [firstName, lastName, email, password, confirmPassword, agreeTerms].forEach(field => {
+    field.classList.remove('is-invalid');
+  });
+
+  // Validate first name
+  if (!firstName.value.trim()) {
+    firstName.classList.add('is-invalid');
+    isValid = false;
+  }
+
+  // Validate last name
+  if (!lastName.value.trim()) {
+    lastName.classList.add('is-invalid');
+    isValid = false;
+  }
+
+  // Validate email
+  if (!email.value || !isValidEmail(email.value)) {
+    email.classList.add('is-invalid');
+    isValid = false;
+  }
+
+  // Validate password
+  if (!password.value || password.value.length < 8) {
+    password.classList.add('is-invalid');
+    isValid = false;
+  }
+
+  // Validate confirm password
+  if (password.value !== confirmPassword.value) {
+    confirmPassword.classList.add('is-invalid');
+    isValid = false;
+  }
+
+  // Validate terms agreement
+  if (!agreeTerms.checked) {
+    agreeTerms.classList.add('is-invalid');
+    isValid = false;
+  }
+
+  if (!isValid) {
+    e.preventDefault();
+  }
+});
+
+// Real-time password confirmation validation
+document.getElementById('confirmPassword').addEventListener('input', function() {
+  const password = document.getElementById('password').value;
+  const confirmPassword = this.value;
+  
+  if (confirmPassword && password !== confirmPassword) {
+    this.classList.add('is-invalid');
+  } else {
+    this.classList.remove('is-invalid');
+  }
+});
+
+// Email validation helper
+function isValidEmail(email) {
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  return emailRegex.test(email);
+}
+
+// Show error message
+function showError(message) {
+  const errorAlert = document.getElementById('errorAlert');
+  const errorMessage = document.getElementById('errorMessage');
+  errorMessage.textContent = message;
+  errorAlert.classList.remove('d-none');
+  document.getElementById('successAlert').classList.add('d-none');
+}
+
+// Show success message
+function showSuccess(message) {
+  const successAlert = document.getElementById('successAlert');
+  const successMessage = document.getElementById('successMessage');
+  successMessage.textContent = message;
+  successAlert.classList.remove('d-none');
+  document.getElementById('errorAlert').classList.add('d-none');
+}
+
+// Check for URL parameters to show messages
+window.addEventListener('DOMContentLoaded', function() {
+  const urlParams = new URLSearchParams(window.location.search);
+  const error = urlParams.get('error');
+  const success = urlParams.get('success');
+  
+  if (error) {
+    showError(decodeURIComponent(error));
+  }
+  
+  if (success) {
+    showSuccess(decodeURIComponent(success));
+  }
+});
+</script>

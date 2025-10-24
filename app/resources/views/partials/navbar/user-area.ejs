@@ -9,20 +9,9 @@
 
     <ul class="dropdown-menu dropdown-menu-end p-2" aria-labelledby="navbarProfileDropdown" style="min-width: 200px;">
       <% (userActions || []).forEach(function(action) {
-           const href = action.href ? action.href : (action.route ? '/' + action.route : '#');
-           const label = action.name.charAt(0).toUpperCase() + action.name.slice(1);
-           if (action.asForm && (action.method || 'post').toLowerCase() === 'post') { %>
-             <li class="mb-1">
-               <form action="<%= href %>" method="post" class="m-0">
-                 <button type="submit" class="btn <%= action.name === 'logout' ? 'btn-outline-danger' : 'btn-outline-secondary' %> btn-sm w-100 text-start d-flex align-items-center">
-                   <% if (action.icon) { %>
-                     <i class="<%= action.icon %> me-2"></i>
-                   <% } %>
-                   <%= label %>
-                 </button>
-               </form>
-             </li>
-        <% } else { %>
+           const href = action.page.route ? action.page.route : '#';
+           const label = action.page.name;
+             %>
              <li class="mb-1">
                <a class="btn btn-outline-secondary btn-sm w-100 text-start d-flex align-items-center" href="<%= href %>">
                  <% if (action.icon) { %>
@@ -31,13 +20,20 @@
                  <%= label %>
                </a>
              </li>
-        <% } %>
       <% }); %>
+      <li class="mb-1">
+        <form action="/auth/logout" method="post" class="m-0">
+          <button type="submit" class="btn btn-outline-danger btn-sm w-100 text-start d-flex align-items-center">
+              <i class="bi bi-box-arrow-right me-2"></i>
+              Logout
+          </button>
+        </form>
+      </li>
     </ul>
   </div>
 <% } else { %>
   <div class="d-flex">
-    <a class="btn btn-outline-primary me-2" href="/signup">Sign up</a>
-    <a class="btn btn-primary" href="/login">Login</a>
+    <a class="btn btn-outline-primary me-2" href="/auth/register">Sign up</a>
+    <a class="btn btn-primary" href="/auth/login">Login</a>
   </div>
 <% } %>

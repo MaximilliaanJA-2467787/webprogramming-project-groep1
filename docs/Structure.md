@@ -140,6 +140,7 @@ items
 
 transactions
 - id
+- uuid -> for matching pay requests to transactions for completing etc.
 - walletSource_id (FK) nullable
 - walletDestination_id (FK) nullable
 - type (purchase/deposit/withdraw/repay)
@@ -149,6 +150,7 @@ transactions
 - location
 - timestamp
 - metadata json
+- status -> completed, busy, canceled
 
 group_pots
 - id
