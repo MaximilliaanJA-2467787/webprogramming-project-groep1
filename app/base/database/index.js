@@ -65,7 +65,7 @@ class Database {
     };
 
     run(sql, params = []) {
-        
+
     }
 }
 
@@ -74,3 +74,43 @@ module.exports = {
     sqlite: sqlite,
     databaseRef: database,
 };
+
+/**
+ * Tablebuilder.js -> all classes seperate file/module
+ * CommonCollumns -> for each function in CommonCollumns -> make member function of tablebuilder
+ * TableBuilder class implementation so it actually manipulates the DB
+ */
+
+
+
+class DataBase {
+    constructor() {
+
+    }
+
+
+
+}
+
+class Table {
+
+    constructor() {
+        this.columns = [];
+    }
+
+    static Builder = class Builder {
+        constructor() {
+            this.table = new Table();
+        }
+
+        static col(name) {
+            // this.table.columns.push(new Col(name));
+        }
+
+        static build() {
+            return this.table;
+        }
+    }
+
+}
+

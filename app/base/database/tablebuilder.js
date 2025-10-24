@@ -2,7 +2,9 @@
 const assert = require('assert');
 const qident = require('../../utils/qident');
 
+const database = require("./index").databaseRef;
 
+database.run();
 
 class ColumnBuilder {
     constructor(name) {
@@ -306,5 +308,4 @@ module.exports = {
     TableBuilder,
     ColumnBuilder,
     CommonColumns,
-    qident, // Export voor mogelijk gebruik in andere modules?
 };
