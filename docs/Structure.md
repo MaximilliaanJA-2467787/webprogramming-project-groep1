@@ -120,6 +120,24 @@ wallets
 - currency (EUR, USD, etc)
 - created_at
 
+categories
+- id
+- name (drank/eten/merch, andere)
+
+vendors
+- id
+- user_id (FK)
+- name
+- location
+
+items
+- id
+- vendor_id (FK)
+- naam
+- category_id (FK) 
+- price_tokens
+- popularity_count
+
 transactions
 - id
 - uuid -> for matching pay requests to transactions for completing etc.
@@ -133,24 +151,6 @@ transactions
 - timestamp
 - metadata json
 - status -> completed, busy, canceled
-
-vendors
-- id
-- user_id (FK)
-- name
-- location
-
-categories
-- id
-- name (drank/eten/merch, andere)
-
-items
-- id
-- vendor_id
-- naam
-- category_id (FK) 
-- price_tokens
-- popularity_count
 
 group_pots
 - id
