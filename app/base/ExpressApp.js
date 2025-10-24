@@ -4,10 +4,8 @@ const expressLayouts = require('express-ejs-layouts');
 const session = require('express-session');
 const Logger = require("../utils/Logger.js");
 const uuid = require('uuid');
-const Database = require('better-sqlite3');
-
 const SqliteStore = require("better-sqlite3-session-store")(session)
-const db = require('./database/index.js')
+const dbModule = require('./database/index.js')
 
 class ExpressApp {
     constructor() {
@@ -30,7 +28,7 @@ class ExpressApp {
         this.express.use(session({
             genid: () => uuid.v4(),
             store: new SqliteStore({
-                client: db.sqlite,
+                client: dbModule.sqlite,
                 expired: {
                     clear: true,
                     intervalMs: 24 * 60 * 60 * 1000
