@@ -21,7 +21,6 @@ class App extends ExpressApp {
         loadGuestRoutes(app);
         loadAuthRoutes(app);
         loadApiRoutes(app);
-        
 
         app.use(FallbackHandler);
         app.use(ErrorHandler);

@@ -1,10 +1,7 @@
 const Pages = require('../routing/Pages.js');
 
 const LocalsHandler = (req, res, next) => {
-    const navLinks = [
-        Pages.home,
-        Pages.support,
-    ];
+    const navLinks = [Pages.home, Pages.support];
 
     const userActions = [
         { page: Pages.profile, icon: 'bi bi-person' },
@@ -22,6 +19,6 @@ const LocalsHandler = (req, res, next) => {
     res.locals.title = 'CashLess';
     res.locals.currentRoute = req.path;
     next();
-}
+};
 
 module.exports = LocalsHandler;

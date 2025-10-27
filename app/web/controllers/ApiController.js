@@ -1,7 +1,6 @@
 const QRCode = require('qrcode');
 
 const ApiController = {
-    
     qrcode: {
         create: async (req, res) => {
             const { transaction_id } = req.body;
@@ -18,9 +17,7 @@ const ApiController = {
                 return res.status(500).json({ error: 'Failed to generate QR code' });
             }
         },
-    }
-
-}
-
+    },
+};
 
 module.exports = ApiController;

@@ -35,7 +35,8 @@ const config = {
     },
 
     session: {
-        secret: 'cashless-secret-key-change-in-production'
+        secret: 'cashless-secret-key-change-in-production',
+        salt_rounds: 10,
     },
 
     // View engine

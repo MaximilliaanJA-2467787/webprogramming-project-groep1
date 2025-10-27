@@ -1,5 +1,5 @@
 // middleware/LogHandler.js
-const Logger = require("../../utils/Logger.js");
+const Logger = require('../../utils/Logger.js');
 
 const LogHandler = (req, res, next) => {
     Logger.logRequest(req);
@@ -28,7 +28,9 @@ const LogHandler = (req, res, next) => {
             Logger.logError(new Error(`HTTP ${res.statusCode}`), makeInfo());
         } else {
             let info = makeInfo();
-            Logger.success(`${info.method} '${info.url}' with status ${info.statusCode} | ${info.durationMs}ms`);
+            Logger.success(
+                `${info.method} '${info.url}' with status ${info.statusCode} | ${info.durationMs}ms`
+            );
         }
     };
 
@@ -38,9 +40,9 @@ const LogHandler = (req, res, next) => {
         finalize();
     };
 
-    res.on("finish", onFinish);
-    res.on("close", onClose);
-    res.on("error", onError);
+    res.on('finish', onFinish);
+    res.on('close', onClose);
+    res.on('error', onError);
 
     next();
 };

@@ -1,0 +1,229 @@
+// app/data/database/schema.js
+// Schema built with TableBuilder/Table() and CommonColumns helpers
+const { Table, CommonColumns } = require('../base/database/tablebuilder');
+
+/**
+ * Tables:
+ * - Users
+ * - Wallets
+ * - Categories
+ * - Vendors
+ * - Items
+ * - Transactions
+ * - GroupPots
+ * - GroupRepayments
+ * - UserGroup (membership)
+ * - Budgets
+ * - BudgetAlerts
+ * - Notifications
+ *
+ * Each table declares local FK columns before the table-level FOREIGN KEY() constraints.
+ */
+
+//
+// Users
+//
+const Users = Table('Users');
+CommonColumns.id(Users);
+CommonColumns.uuid(Users, true); // unique uuid
+Users.col('email').text().unique().notNull();
+Users.col('password_hash').text().notNull();
+Users.col('name').text().notNull();
+Users.col('role').text().notNull(); // user / vendor / admin
+CommonColumns.createdAt(Users);
+Users.index(['email'], { name: 'idx_users_email' });
+
+//
+// Wallets
+//
+const Wallets = Table('Wallets');
+CommonColumns.id(Wallets);
+Wallets.col('user_id').integer().notNull();
+Wallets.col('balance_tokens').real().default(0);
+Wallets.col('currency').text().default('EUR');
+CommonColumns.createdAt(Wallets);
+Wallets.fk('user_id', 'Users', 'id', { onDelete: 'CASCADE', onUpdate: 'CASCADE' });
+Wallets.index(['user_id'], { name: 'idx_wallets_user' });
+
+//
+// Categories
+//
+const Categories = Table('Categories');
+CommonColumns.id(Categories);
+Categories.col('name').text().notNull().unique();
+Categories.index(['name'], { name: 'idx_categories_name' });
+
+//
+// Vendors
+//
+const Vendors = Table('Vendors');
+CommonColumns.id(Vendors);
+Vendors.col('user_id').integer(); // the account that represents this vendor (optional)
+Vendors.col('name').text().notNull();
+Vendors.col('location').text(); // freeform location string, can be lat/lon JSON
+Vendors.col('longitude').real();
+Vendors.col('latitude').real();
+CommonColumns.createdAt(Vendors);
+Vendors.fk('user_id', 'Users', 'id', { onDelete: 'SET NULL' });
+Vendors.index(['user_id'], { name: 'idx_vendors_user' });
+Vendors.index(['name'], { name: 'idx_vendors_name' });
+
+//
+// Items
+//
+const Items = Table('Items');
+CommonColumns.id(Items);
+Items.col('vendor_id').integer();
+Items.col('name').text().notNull();
+Items.col('category_id').integer();
+Items.col('price_tokens').integer().default(0);
+Items.col('popularity_count').integer().default(0);
+Items.col('metadata').text(); // JSON as TEXT
+CommonColumns.createdAt(Items);
+Items.fk('vendor_id', 'Vendors', 'id', { onDelete: 'SET NULL' });
+Items.fk('category_id', 'Categories', 'id', { onDelete: 'SET NULL' });
+Items.index(['vendor_id'], { name: 'idx_items_vendor' });
+Items.index(['category_id'], { name: 'idx_items_category' });
+
+//
+// Transactions
+//
+const Transactions = Table('Transactions');
+CommonColumns.id(Transactions);
+Transactions.col('uuid').text().notNull().unique(); // external matching id for pay requests
+Transactions.col('walletSource_id').integer(); // nullable: deposits may have null source
+Transactions.col('walletDestination_id').integer(); // nullable
+Transactions.col('type').text().notNull(); // purchase/deposit/withdraw/repay
+Transactions.col('amount_tokens').real().notNull();
+Transactions.col('item_id').integer();
+Transactions.col('vendor_id').integer();
+Transactions.col('location').text();
+Transactions.col('timestamp').datetime().default('CURRENT_TIMESTAMP');
+Transactions.col('metadata').text(); // JSON as TEXT
+Transactions.col('status').text().default('pending'); // pending/completed/canceled/busy
+CommonColumns.createdAt(Transactions);
+
+// foreign keys (local columns exist above)
+Transactions.fk('walletSource_id', 'Wallets', 'id', { onDelete: 'SET NULL' });
+Transactions.fk('walletDestination_id', 'Wallets', 'id', { onDelete: 'SET NULL' });
+Transactions.fk('item_id', 'Items', 'id', { onDelete: 'SET NULL' });
+Transactions.fk('vendor_id', 'Vendors', 'id', { onDelete: 'SET NULL' });
+
+Transactions.index(['walletSource_id'], { name: 'idx_tx_wallet_source' });
+Transactions.index(['walletDestination_id'], { name: 'idx_tx_wallet_dest' });
+Transactions.index(['vendor_id'], { name: 'idx_tx_vendor' });
+Transactions.index(['timestamp'], { name: 'idx_tx_timestamp' });
+
+//
+// Group pots (shared pools)
+//
+const GroupPots = Table('GroupPots');
+CommonColumns.id(GroupPots);
+GroupPots.col('name').text().notNull();
+GroupPots.col('owner_id').integer().notNull(); // user who created/owns the pot
+GroupPots.col('description').text();
+GroupPots.col('metadata').text();
+CommonColumns.createdAt(GroupPots);
+GroupPots.fk('owner_id', 'Users', 'id', { onDelete: 'CASCADE' });
+GroupPots.index(['owner_id'], { name: 'idx_grouppots_owner' });
+
+//
+// Group repayments (tracks who should repay whom)
+//
+const GroupRepayments = Table('GroupRepayments');
+CommonColumns.id(GroupRepayments);
+GroupRepayments.col('user_id').integer().notNull(); // who owes
+GroupRepayments.col('group_pot_id').integer().notNull();
+GroupRepayments.col('transaction_id').integer().notNull(); // the original transaction that caused the debt/share
+GroupRepayments.col('share_percent').real().notNull(); // percent share (0-100)
+GroupRepayments.col('amount_tokens').real().notNull(); // calculated amount to repay
+GroupRepayments.col('status').text().default('open'); // open/paid/waived
+CommonColumns.createdAt(GroupRepayments);
+
+GroupRepayments.fk('user_id', 'Users', 'id', { onDelete: 'CASCADE' });
+GroupRepayments.fk('group_pot_id', 'GroupPots', 'id', { onDelete: 'CASCADE' });
+GroupRepayments.fk('transaction_id', 'Transactions', 'id', { onDelete: 'CASCADE' });
+GroupRepayments.index(['group_pot_id'], { name: 'idx_grouprep_group' });
+GroupRepayments.index(['user_id'], { name: 'idx_grouprep_user' });
+
+//
+// UserGroup (membership + invite/auth token)
+//
+const UserGroup = Table('UserGroup');
+CommonColumns.id(UserGroup);
+UserGroup.col('user_id').integer().notNull();
+UserGroup.col('group_pot_id').integer().notNull();
+UserGroup.col('role').text().default('member'); // member/admin
+UserGroup.col('group_auth_token_hash').text(); // hashed token for invite/authorization
+CommonColumns.createdAt(UserGroup);
+
+// unique membership per user/group
+UserGroup.unique(['user_id', 'group_pot_id'], 'uq_usergroup_user_group');
+
+UserGroup.fk('user_id', 'Users', 'id', { onDelete: 'CASCADE' });
+UserGroup.fk('group_pot_id', 'GroupPots', 'id', { onDelete: 'CASCADE' });
+UserGroup.index(['group_pot_id'], { name: 'idx_usergroup_group' });
+UserGroup.index(['user_id'], { name: 'idx_usergroup_user' });
+
+//
+// Budgets (per user per category)
+//
+const Budgets = Table('Budgets');
+CommonColumns.id(Budgets);
+Budgets.col('user_id').integer().notNull();
+Budgets.col('category_id').integer().notNull();
+Budgets.col('limit_tokens').real().notNull();
+Budgets.col('interval').text().default('monthly'); // daily/weekly/monthly
+Budgets.col('metadata').text();
+CommonColumns.createdAt(Budgets);
+
+Budgets.fk('user_id', 'Users', 'id', { onDelete: 'CASCADE' });
+Budgets.fk('category_id', 'Categories', 'id', { onDelete: 'SET NULL' });
+Budgets.index(['user_id'], { name: 'idx_budgets_user' });
+Budgets.index(['category_id'], { name: 'idx_budgets_category' });
+
+//
+// Budget Alerts
+//
+const BudgetAlerts = Table('BudgetAlerts');
+CommonColumns.id(BudgetAlerts);
+BudgetAlerts.col('budget_id').integer().notNull();
+BudgetAlerts.col('alert_threshold_percent').integer().notNull(); // e.g. 80
+BudgetAlerts.col('message').text();
+BudgetAlerts.col('active').integer().default(1); // 1 = enabled, 0 = disabled
+CommonColumns.createdAt(BudgetAlerts);
+
+BudgetAlerts.fk('budget_id', 'Budgets', 'id', { onDelete: 'CASCADE' });
+BudgetAlerts.index(['budget_id'], { name: 'idx_budgetalerts_budget' });
+
+//
+// Notifications
+//
+const Notifications = Table('Notifications');
+CommonColumns.id(Notifications);
+Notifications.col('user_id').integer().notNull();
+Notifications.col('type').text().notNull();
+Notifications.col('payload').text(); // JSON as TEXT
+Notifications.col('read').integer().default(0);
+CommonColumns.createdAt(Notifications);
+
+Notifications.fk('user_id', 'Users', 'id', { onDelete: 'CASCADE' });
+Notifications.index(['user_id'], { name: 'idx_notifications_user' });
+Notifications.index(['read'], { name: 'idx_notifications_read' });
+
+// Export schema in the order that respects FK dependencies as much as possible.
+// (Tables referencing others should appear after the referenced table.)
+module.exports = [
+    Users,
+    Wallets,
+    Categories,
+    Vendors,
+    Items,
+    Transactions,
+    GroupPots,
+    GroupRepayments,
+    UserGroup,
+    Budgets,
+    BudgetAlerts,
+    Notifications,
+];

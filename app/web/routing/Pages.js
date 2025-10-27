@@ -1,80 +1,80 @@
 const Pages = {
-    'error': {
+    error: {
         name: 'Error',
         layout: 'layouts/error-layout',
         view: 'pages/error',
-        route: null
+        route: null,
     },
 
-    'home': {
+    home: {
         name: 'Home',
         layout: 'layouts/default-layout',
         view: 'pages/guest/index',
-        route: '/'
+        route: '/',
     },
 
-    'profile': {
+    profile: {
         name: 'Profile',
         layout: 'layouts/default-layout',
         view: 'pages/guest/index',
-        route: '/'
+        route: '/',
     },
 
-    'wallet': {
+    wallet: {
         name: 'Wallet',
         layout: 'layouts/default-layout',
         view: 'pages/guest/index',
-        route: '/'
+        route: '/',
     },
 
-    'groups': {
+    groups: {
         name: 'Groups',
         layout: 'layouts/default-layout',
         view: 'pages/guest/index',
-        route: '/'
+        route: '/',
     },
 
-    'budgets': {
+    budgets: {
         name: 'Budgets',
         layout: 'layouts/default-layout',
         view: 'pages/guest/index',
-        route: '/'
+        route: '/',
     },
-    
-    'support': {
+
+    support: {
         name: 'Support',
         layout: 'layouts/default-layout',
         view: 'pages/guest/support',
-        route: '/support'
+        route: '/support',
     },
 
-    'login': {
+    login: {
         name: 'Login',
         layout: 'layouts/default-layout',
         view: 'pages/auth/login',
-        route: '/auth/login'
+        route: '/auth/login',
     },
 
-    'register': {
+    register: {
         name: 'Register',
         layout: 'layouts/default-layout',
         view: 'pages/auth/register',
-        route: '/auth/register'
+        route: '/auth/register',
     },
 
-    'forgotPassword': {
+    forgotPassword: {
         name: 'Forgot Password',
         layout: 'layouts/default-layout',
         view: 'pages/auth/forgot-password',
-        route: '/auth/forgot-password'
+        route: '/auth/forgot-password',
     },
 
-    'resetPassword': {
+    resetPassword: {
         name: 'Reset Password',
         layout: 'layouts/default-layout',
         view: 'pages/auth/reset-password',
-        route: '/auth/reset-password'
-    }
+        route: '/auth/reset-password',
+    },
 };
 
 module.exports = Pages;
