@@ -1,5 +1,3 @@
-// app/data/database/schema.js
-// Schema built with TableBuilder/Table() and CommonColumns helpers
 const { Table, CommonColumns } = require('../base/database/tablebuilder');
 
 /**
