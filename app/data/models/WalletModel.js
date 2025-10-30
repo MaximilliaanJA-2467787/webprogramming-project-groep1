@@ -1,27 +1,26 @@
-const BaseModel = require("../../base/model");
-const qident = require("../../utils/qident");
+const BaseModel = require('../../base/model');
+const qident = require('../../utils/qident');
 
-class WalletModel extends BaseModel{
-    static tablename = 'Wallets'
-    constructor(){}
+class WalletModel extends BaseModel {
+    static tablename = 'Wallets';
+    constructor() {}
 
     /**
      * zoekt wallet met bepaalde userId
-     * @param {number} userId 
+     * @param {number} userId
      * @returns Wallet(object) | null
      */
     static async getByUserId(userId) {
         try {
-            return await this.findOne({user_id: userId});
-        }
-        catch (err) {
+            return await this.findOne({ user_id: userId });
+        } catch (err) {
             throw new Error(`Error in ${this.name}.getByUserId: ${err.message}`);
         }
     }
 
     /**
      * Maakt nieuwe wallet aan voor gebruiker als die wallet nog niet bestaat
-     * @param {number} userId 
+     * @param {number} userId
      * @param {string} currency => 'EUR', 'USD', ...
      * @returns Wallet(object) | null
      */
@@ -45,13 +44,13 @@ class WalletModel extends BaseModel{
 
     /**
      * zoekt balance van wallet met meegegeven userId
-     * @param {number} userId 
+     * @param {number} userId
      * @returns WalletBalance
      */
     static async getBalance(userId) {
         try {
             const wallet = this.getByUserId(userId);
-            return wallet ? parseFloat(wallet.balance_tokens) : 0; 
+            return wallet ? parseFloat(wallet.balance_tokens) : 0;
         } catch (err) {
             throw new Error(`Error in ${this.name}.getBalance: ${err.message}`);
         }
@@ -60,8 +59,8 @@ class WalletModel extends BaseModel{
     /**
      * toevoegen tokens bij user met meegegeven userId
      * doet alleen bijvullen, niet aftrekken
-     * @param {number} userId 
-     * @param {number} amountTokens 
+     * @param {number} userId
+     * @param {number} amountTokens
      * @returns Wallet(object) | null
      */
     static async addTokens(userId, amountTokens) {
@@ -74,10 +73,10 @@ class WalletModel extends BaseModel{
             if (!wallet) {
                 throw new Error(`Wallet not found for user ${userId}`);
             }
-        
+
             const newBalance = parseFloat(wallet.balance_tokens) + parseFloat(amountTokens);
             return await this.update(wallet.id, {
-                balance_tokens: newBalance
+                balance_tokens: newBalance,
             });
         } catch (err) {
             throw new Error(`Error in ${this.name}.addTokens: ${err.message}`);
@@ -87,8 +86,8 @@ class WalletModel extends BaseModel{
     /**
      * aftrekken tokens bij user met meegegeven userId
      * doet alleen aftrekken, niet toevoegen
-     * @param {number} userId 
-     * @param {number} amountTokens 
+     * @param {number} userId
+     * @param {number} amountTokens
      * @returns Wallet(object) | null
      */
     static async removeTokens(userId, amountTokens) {
@@ -102,14 +101,14 @@ class WalletModel extends BaseModel{
                 throw new Error(`Wallet not found for user ${userId}`);
             }
 
-            const currentBalance = parseFloat(wallet.balance_tokens)
+            const currentBalance = parseFloat(wallet.balance_tokens);
             if (currentBalance < amountTokens) {
                 throw new Error(`Insufficient balance: ${currentBalance} < ${amount}`);
             }
 
             const newBalance = currentBalance - parseFloat(amountTokens);
             return await this.update(wallet.id, {
-                balance_tokens: newBalance
+                balance_tokens: newBalance,
             });
         } catch (err) {
             throw new Error(`Error in ${this.name}.addTokens: ${err.message}`);
@@ -118,9 +117,9 @@ class WalletModel extends BaseModel{
 
     /**
      * gaat een transfer verrichten van user naar andere user met een meegegeven hoeveelheid van tokens
-     * @param {number} sourceUserId 
-     * @param {number} destinationUserId 
-     * @param {number} amount 
+     * @param {number} sourceUserId
+     * @param {number} destinationUserId
+     * @param {number} amount
      * @returns sourceWallet en destinationWallet met nieuwe balance
      */
     static async transfer(sourceUserId, destinationUserId, amount) {
@@ -147,7 +146,7 @@ class WalletModel extends BaseModel{
                 throw new Error(`Insufficient balance: ${sourceBalance} < ${amount}`);
             }
 
-            const executeTransfer = this._db().transaction(()=> {
+            const executeTransfer = this._db().transaction(() => {
                 const newSourceBalance = sourceBalance - parseFloat(amount);
                 this._db().run(
                     `UPDATE ${qident(this._tableName())} SET balance_tokens = ? WHERE id = ?`,
@@ -164,20 +163,38 @@ class WalletModel extends BaseModel{
 
             executeTransfer();
 
-            return{
+            return {
                 source: await this.getById(sourceWallet.id),
-                destination: await this.getById(destinationWallet.id)
+                destination: await this.getById(destinationWallet.id),
             };
         } catch (err) {
             throw new Error(`Error in ${this.name}.transfer: ${err.message}`);
         }
     }
 
+    /**
+     * functie is alleen bedoeld voor admin users
+     * zet balance van user naar de meegegeven balance
+     * @param {number} userId
+     * @param {number} newBalance
+     * @returns Wallet(object) | null
+     */
+    static async setBalance(userId, newBalance) {
+        if (newBalance < 0) {
+            throw new Error(`Balance cannot be negative`);
+        }
 
+        try {
+            const wallet = await this.getByUserId(userId);
+            if (!wallet) {
+                throw new Error(`Wallet not found for user ${userId}`);
+            }
 
-
-
-
-
-
+            return await this.update(wallet.id, {
+                balance_tokens: newBalance,
+            });
+        } catch (err) {
+            throw new Error(`Error in ${this.name}.setBalance: ${err.message}`);
+        }
+    }
 }
