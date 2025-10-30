@@ -28,18 +28,30 @@ class Database {
     }
 
     run(sql, params = []) {
-        if (Array.isArray(params) || typeof params === 'object') {
+        if (Array.isArray(params)) {
+            return this.sqlite.prepare(sql).run(...params);
+        } else if (typeof params === 'object') {
             return this.sqlite.prepare(sql).run(params);
         }
         return this.sqlite.prepare(sql).run();
     }
 
     get(sql, params = []) {
-        return this.sqlite.prepare(sql).get(params);
+        if (Array.isArray(params)) {
+            return this.sqlite.prepare(sql).get(...params);
+        } else if (typeof params === 'object') {
+            return this.sqlite.prepare(sql).get(params);
+        }
+        return this.sqlite.prepare(sql).get();
     }
 
     all(sql, params = []) {
-        return this.sqlite.prepare(sql).all(params);
+        if (Array.isArray(params)) {
+            return this.sqlite.prepare(sql).all(...params);
+        } else if (typeof params === 'object') {
+            return this.sqlite.prepare(sql).all(params);
+        }
+        return this.sqlite.prepare(sql).all();
     }
 
     prepare(sql) {
@@ -50,6 +62,31 @@ class Database {
         // return a function wrapped in better-sqlite3 transaction
         const wrapped = this.sqlite.transaction(fn);
         return (...args) => wrapped(...args);
+    }
+
+    async getAllTablesInfo() {
+        const tablesInfo = {};
+
+        const tableNames = this.all(
+            `SELECT name FROM sqlite_master 
+            WHERE type='table' AND name NOT LIKE 'sqlite_%';`
+        );
+
+        for (const row of tableNames) {
+            const tableName = row.name;
+
+            const columns = this.all(`PRAGMA table_info(${tableName});`);
+
+            tablesInfo[tableName] = columns.map((col) => ({
+                name: col.name,
+                type: col.type,
+                pk: col.pk === 1,
+                notnull: col.notnull === 1,
+                dflt_value: col.dflt_value,
+            }));
+        }
+
+        return { tables: tablesInfo };
     }
 
     initDatabase() {

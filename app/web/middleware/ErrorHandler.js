@@ -1,6 +1,5 @@
 const Logger = require('../../utils/Logger.js');
 const Pages = require('../routing/Pages.js');
-const HttpError = require('../../utils/HTTPErrors.js');
 const error = require('../../utils/error.js');
 
 const ErrorHandler = (err, req, res, next) => {

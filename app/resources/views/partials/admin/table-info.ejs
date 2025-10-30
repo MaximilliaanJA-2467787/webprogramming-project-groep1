@@ -1,0 +1,54 @@
+<div class="card mb-4" id="schema">
+  <div class="card-header d-flex justify-content-between align-items-center">
+    <div>
+      <strong>Table:</strong> <span class="h6 mb-0"><%= table.name %></span>
+    </div>
+    <div class="small text-muted">Columns: <strong><%= columns.length %></strong></div>
+  </div>
+
+  <div class="card-body p-0">
+    <div class="table-responsive">
+      <table class="table table-sm mb-0">
+        <thead class="table-light">
+          <tr>
+            <th scope="col">Column</th>
+            <th scope="col">Type</th>
+            <th scope="col" class="text-center">PK</th>
+            <th scope="col" class="text-center">NN</th>
+            <th scope="col">Default</th>
+          </tr>
+        </thead>
+        <tbody>
+          <% columns.forEach(function(col){ %>
+            <tr>
+              <td>
+                <div class="d-flex align-items-start gap-2">
+                  <div>
+                    <strong><%= col.name %></strong>
+                    <div class="small text-muted"><%= col.comment || '' %></div>
+                  </div>
+                </div>
+              </td>
+              <td>
+                <% if (col.type) { %>
+                  <span class="badge bg-light text-dark small"><%= col.type %></span>
+                <% } %>
+              </td>
+              <td class="text-center">
+                <% if (col.pk) { %>
+                  <span class="badge bg-primary small" aria-label="Primary key">PK</span>
+                <% } %>
+              </td>
+              <td class="text-center">
+                <% if (col.notnull) { %>
+                  <span class="badge bg-warning text-dark small" aria-label="Not null">NN</span>
+                <% } %>
+              </td>
+              <td class="small text-muted"><%= col.dflt_value == null ? '' : col.dflt_value %></td>
+            </tr>
+          <% }) %>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
