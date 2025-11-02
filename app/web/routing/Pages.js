@@ -75,6 +75,13 @@ const Pages = {
         view: 'pages/auth/reset-password',
         route: '/auth/reset-password',
     },
+
+    wallet: {
+        name: 'Wallet',
+        layout: 'layouts/default-layout',
+        view: 'pages/user/wallet',
+        route: '/wallet',
+    },
 };
 
 module.exports = Pages;

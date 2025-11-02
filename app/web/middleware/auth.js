@@ -11,9 +11,9 @@ async function requireAuth(req, res, next) {
         return gotoLogin(res, 'This page requires authentication, please log in.');
     }
 
-    await attachFreshUser();
+    await attachFreshUser(req, res, next);
 
-    return next();
+    // return next();
 }
 
 function requireRole(roles) {

@@ -2,7 +2,7 @@ const BaseModel = require('../../base/model');
 const qident = require('../../utils/qident');
 
 class WalletModel extends BaseModel {
-    static tablename = 'Wallets';
+    static tableName = 'Wallets';
     constructor() {}
 
     /**
@@ -197,4 +197,31 @@ class WalletModel extends BaseModel {
             throw new Error(`Error in ${this.name}.setBalance: ${err.message}`);
         }
     }
+
+    /**
+     * geeft wallet data van user terug
+     * @param {number} userId 
+     * @returns 
+     */
+    static async getSummary(userId) {
+        const sql = `
+            SELECT 
+                w.*,
+                u.name as user_name,
+                u.email as user_email,
+                u.role as user_role
+            FROM ${qident(this._tableName())} w
+            JOIN ${qident('Users')} u ON w.user_id = u.id
+            WHERE w.user_id = ?
+        `;
+
+        try {
+            const row  = this._db().get(sql, [userId]);
+            return row || null;
+        } catch (err) {
+            throw new Error(`Error in ${this.name}.getSummary: ${err.message}`);
+        }
+    }
 }
+
+module.exports = WalletModel;

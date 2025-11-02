@@ -1,4 +1,4 @@
-const { databaseRef } = require('../data/database'); // adjust path if needed
+const { databaseRef } = require('../database'); // adjust path if needed
 const qident = require('../../utils/qident');
 
 /**
