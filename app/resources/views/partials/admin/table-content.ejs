@@ -1,0 +1,148 @@
+<!-- views/admin/components/table-content.ejs -->
+<div class="card">
+  <div class="card-header bg-white d-flex flex-column flex-sm-row justify-content-between align-items-sm-center gap-2">
+    <div>
+      <strong>Rows</strong>
+      <small class="text-muted"> — showing page <%= pagination.page %> of <%= pagination.totalPages %></small>
+    </div>
+
+    <div class="d-flex flex-wrap gap-2 align-items-center">
+      <!-- Search -->
+      <form method="get" action="/admin/tables/<%= encodeURIComponent(table.name) %>" class="d-flex align-items-center" role="search" aria-label="Search rows">
+        <input type="hidden" name="perPage" value="<%= pagination.perPage %>">
+        <input type="hidden" name="page" value="1">
+        <div class="input-group input-group-sm">
+          <input name="q" value="<%= (typeof query !== 'undefined') ? query : '' %>" class="form-control form-control-sm" placeholder="Search rows..." aria-label="Search rows">
+          <button class="btn btn-outline-secondary" type="submit" aria-label="Search"><i class="bi bi-search"></i></button>
+        </div>
+      </form>
+
+      <!-- Per page -->
+      <form method="get" action="/admin/tables/<%= encodeURIComponent(table.name) %>" class="d-flex align-items-center" aria-label="Rows per page">
+        <input type="hidden" name="page" value="1">
+        <input type="hidden" name="q" value="<%= (typeof query !== 'undefined') ? query : '' %>">
+        <label class="me-2 mb-0 small">Per page</label>
+        <select name="perPage" class="form-select form-select-sm me-2" onchange="this.form.submit()">
+          <% [10, 20, 50].forEach(function(pp){ %>
+            <option value="<%= pp %>" <%= (pagination.perPage==pp) ? 'selected' : '' %>><%= pp %></option>
+          <% }) %>
+        </select>
+        <noscript><button class="btn btn-sm btn-outline-secondary">Apply</button></noscript>
+      </form>
+
+      <!-- Actions -->
+      <div class="btn-group btn-group-sm" role="group" aria-label="Row actions">
+        <a class="btn btn-outline-secondary" href="/admin/tables/<%= encodeURIComponent(table.name) %>?download=csv" title="Download CSV" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="bi bi-download"></i></a>
+        <button class="btn btn-outline-secondary" id="refreshBtn" title="Refresh" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="bi bi-arrow-clockwise"></i></button>
+      </div>
+    </div>
+  </div>
+
+  <div class="card-body p-0">
+    <div class="table-responsive" style="max-height:60vh;">
+      <table class="table table-sm table-striped align-middle mb-0">
+        <thead class="table-light" style="position:sticky; top:0; z-index:2;">
+          <tr>
+            <% columns.forEach(function(col){ %>
+              <th scope="col" class="text-nowrap"><%= col.name %></th>
+            <% }) %>
+          </tr>
+        </thead>
+
+        <tbody>
+          <% if (!rows || rows.length === 0) { %>
+            <tr><td colspan="<%= columns.length %>" class="text-center text-muted py-4">No rows</td></tr>
+          <% } else { %>
+            <% rows.forEach(function(r, rowIndex){ %>
+              <tr>
+                <% columns.forEach(function(col, colIndex){ 
+                     var val = (r[col.name] === null || r[col.name] === undefined) ? '' : r[col.name];
+                     var text = (typeof val === 'object') ? JSON.stringify(val, null, 2) : String(val);
+                     var isJson = (typeof val === 'object');
+                     var display = text.length > 200 ? (text.slice(0, 200) + '…') : text;
+                %>
+                  <td class="align-top">
+                    <% if (isJson) { %>
+                      <div class="d-flex gap-1 align-items-start">
+                        <code class="flex-grow-1 text-wrap small" style="white-space:pre-wrap; max-height:3.2rem; overflow:hidden;"> <%= display %> </code>
+                        <div class="btn-group-vertical">
+                          <button class="btn btn-sm btn-outline-secondary" data-bs-toggle="tooltip" title="View JSON" data-full="<%= text.replace(/"/g, '&quot;') %>" data-col="<%= col.name %>" data-row="<%= rowIndex %>"><i class="bi bi-file-earmark-code"></i></button>
+                          <button class="btn btn-sm btn-outline-secondary copy-btn" data-clipboard="<%= text.replace(/"/g, '&quot;') %>" data-bs-toggle="tooltip" title="Copy"><i class="bi bi-clipboard"></i></button>
+                        </div>
+                      </div>
+                    <% } else { %>
+                      <div class="d-flex justify-content-between align-items-start gap-2">
+                        <span class="small text-truncate" title="<%= text.replace(/"/g, '&quot;') %>" style="max-width:100%"><%= display %></span>
+                        <button class="btn btn-sm btn-outline-secondary copy-btn" data-clipboard="<%= text.replace(/"/g, '&quot;') %>" data-bs-toggle="tooltip" title="Copy"><i class="bi bi-clipboard"></i></button>
+                      </div>
+                    <% } %>
+                  </td>
+                <% }) %>
+              </tr>
+            <% }) %>
+          <% } %>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <div class="card-footer bg-white d-flex flex-column flex-sm-row justify-content-between align-items-center gap-2">
+    <div class="small text-muted">
+      Showing <strong><%= rows.length %></strong> of <strong><%= pagination.total %></strong> rows
+    </div>
+
+    <nav aria-label="Table pagination">
+      <ul class="pagination pagination-sm mb-0">
+        <li class="page-item <%= (pagination.page <= 1) ? 'disabled' : '' %>">
+          <a class="page-link" href="/admin/tables/<%= encodeURIComponent(table.name) %>?page=1&perPage=<%= pagination.perPage %>">First</a>
+        </li>
+
+        <% 
+          var start = Math.max(1, pagination.page - 2);
+          var end = Math.min(pagination.totalPages, pagination.page + 2);
+          if (start > 1) { %>
+            <li class="page-item"><a class="page-link" href="/admin/tables/<%= encodeURIComponent(table.name) %>?page=1&perPage=<%= pagination.perPage %>">1</a></li>
+            <% if (start > 2) { %>
+              <li class="page-item disabled"><span class="page-link">…</span></li>
+            <% } %>
+        <% } %>
+
+        <% for (var p = start; p <= end; p++) { %>
+          <li class="page-item <%= (p === pagination.page) ? 'active' : '' %>">
+            <a class="page-link" href="/admin/tables/<%= encodeURIComponent(table.name) %>?page=<%= p %>&perPage=<%= pagination.perPage %>"><%= p %></a>
+          </li>
+        <% } %>
+
+        <% if (end < pagination.totalPages) { %>
+          <% if (end < pagination.totalPages - 1) { %>
+            <li class="page-item disabled"><span class="page-link">…</span></li>
+          <% } %>
+          <li class="page-item"><a class="page-link" href="/admin/tables/<%= encodeURIComponent(table.name) %>?page=<%= pagination.totalPages %>&perPage=<%= pagination.perPage %>"><%= pagination.totalPages %></a></li>
+        <% } %>
+
+        <li class="page-item <%= (pagination.page >= pagination.totalPages) ? 'disabled' : '' %>">
+          <a class="page-link" href="/admin/tables/<%= encodeURIComponent(table.name) %>?page=<%= pagination.page + 1 %>&perPage=<%= pagination.perPage %>">Next</a>
+        </li>
+      </ul>
+    </nav>
+  </div>
+</div>
+
+<!-- Modal used to display large cell content (JSON / long text) -->
+<div class="modal fade" id="cellModal" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog modal-lg modal-dialog-scrollable">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">Cell content</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <pre id="cellModalContent" class="small" style="white-space:pre-wrap;"></pre>
+      </div>
+      <div class="modal-footer">
+        <button id="modalCopyBtn" type="button" class="btn btn-sm btn-outline-secondary">Copy</button>
+        <button type="button" class="btn btn-sm btn-secondary" data-bs-dismiss="modal">Close</button>
+      </div>
+    </div>
+  </div>
+</div>

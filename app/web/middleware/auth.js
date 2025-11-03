@@ -11,7 +11,7 @@ async function requireAuth(req, res, next) {
         return gotoLogin(res, 'This page requires authentication, please log in.');
     }
 
-    await attachFreshUser();
+    await attachFreshUser(req, res);
 
     return next();
 }
@@ -26,24 +26,38 @@ function requireRole(roles) {
             return gotoLogin(res, 'This page requires authentication, please log in.');
         }
         const userRole = req.session.user.role;
+        console.log(userRole);
         if (!allowed.includes(userRole)) {
             return error(res, 403);
         }
 
-        await attachFreshUser();
+        // same: don't pass next into attachFreshUser
+        await attachFreshUser(req, res);
 
         return next();
     };
 }
 
+/**
+ * attachFreshUser can be used two ways:
+ *  1) as middleware: app.use(attachFreshUser) in that case `next` is provided and the function will call it.
+ *  2) as a helper awaited by other middleware: await attachFreshUser(req, res) in that case it will NOT call next().
+ */
 async function attachFreshUser(req, res, next) {
-    if (!req.session || !req.session.user || !req.session.user.id) return next();
+    if (!req.session || !req.session.user || !req.session.user.id) {
+        if (typeof next === 'function') return next();
+        return;
+    }
 
     try {
-        const user = UserModel.getById(req.session.user.id);
+        const user = await UserModel.getById(req.session.user.id);
 
         if (!user) {
-            req.session.destroy(() => {});
+            try {
+                req.session.destroy(() => {});
+            } catch (e) {
+                // ignore
+            }
             req.user = null;
             res.locals.user = null;
             return gotoLogin(res, 'This page requires authentication, please log in.');
@@ -51,10 +65,13 @@ async function attachFreshUser(req, res, next) {
 
         res.locals.user = user;
         req.session.user = { id: user.id, email: user.email, role: user.role, name: user.name };
-        return next();
+
+        if (typeof next === 'function') return next();
+        return;
     } catch (err) {
         console.error('attachFreshUser error', err);
-        return next();
+        if (typeof next === 'function') return next();
+        return;
     }
 }
 
