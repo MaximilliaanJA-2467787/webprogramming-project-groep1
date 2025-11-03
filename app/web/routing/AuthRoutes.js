@@ -7,7 +7,6 @@ function loadAuthRoutes(app) {
     app.get(Pages.register.route, AuthController.showRegister);
     app.get(Pages.forgotPassword.route, AuthController.showForgotPassword);
     app.get(Pages.resetPassword.route, AuthController.showResetPassword);
-    app.get('/dashboard', AuthController.dashboard);
 
     // POST routes - Process forms
     app.post('/auth/login', AuthController.login);

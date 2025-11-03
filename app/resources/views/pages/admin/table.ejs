@@ -1,0 +1,81 @@
+<div class="container py-4">
+  <nav aria-label="breadcrumb" class="mb-3">
+    <ol class="breadcrumb">
+      <li class="breadcrumb-item"><a href="/admin">Admin</a></li>
+      <li class="breadcrumb-item"><a href="/admin">Tables</a></li>
+      <li class="breadcrumb-item active" aria-current="page"><%= table.name %></li>
+    </ol>
+  </nav>
+
+  <div class="d-flex justify-content-between align-items-start mb-3 gap-2 flex-wrap">
+    <h3 class="mb-0"><i class="bi bi-table"></i> <span class="align-middle">Table: <%= table.name %></span></h3>
+
+    <div class="d-flex gap-2">
+      <a href="/admin" class="btn btn-sm btn-outline-secondary" title="Back to tables"><i class="bi bi-arrow-left"></i> Back</a>
+      <a href="/admin/tables/<%= encodeURIComponent(table.name) %>?download=csv" class="btn btn-sm btn-primary" title="Download CSV"><i class="bi bi-download"></i> Download CSV</a>
+    </div>
+  </div>
+
+  <%- include('../../partials/admin/table-info', { table: table, columns: columns }) %>
+
+  <%- include('../../partials/admin/table-content', { table: table, columns: columns, rows: rows, pagination: pagination, query: (typeof query !== 'undefined') ? query : '' }) %>
+</div>
+
+<script>
+  // Initialise tooltips and wire up copy/modal behaviours (Bootstrap 5.3)
+  document.addEventListener('DOMContentLoaded', function () {
+    // tooltips
+    var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
+    tooltipTriggerList.map(function (el) { return new bootstrap.Tooltip(el); });
+
+    // refresh button - quick UX for user; reload keeps query params intact
+    var refreshBtn = document.getElementById('refreshBtn');
+    if (refreshBtn) {
+      refreshBtn.addEventListener('click', function () { location.reload(); });
+    }
+
+    // copy buttons
+    document.querySelectorAll('.copy-btn').forEach(function(btn){
+      btn.addEventListener('click', function(e){
+        var text = btn.getAttribute('data-clipboard') || '';
+        navigator.clipboard?.writeText(text).then(function(){
+          var tip = bootstrap.Tooltip.getInstance(btn);
+          if (tip) { tip.dispose(); }
+          var t = new bootstrap.Tooltip(btn, { title: 'Copied!', trigger: 'manual' });
+          t.show();
+          setTimeout(function(){ t.hide(); t.dispose(); }, 1000);
+        }).catch(function(){ /* ignore */ });
+      });
+    });
+
+    // modal for viewing large cell content
+    var cellModalEl = document.getElementById('cellModal');
+    if (cellModalEl) {
+      var cellModal = new bootstrap.Modal(cellModalEl);
+      var contentEl = document.getElementById('cellModalContent');
+      var modalCopyBtn = document.getElementById('modalCopyBtn');
+
+      document.querySelectorAll('button[data-full]').forEach(function(btn){
+        btn.addEventListener('click', function(){
+          var full = btn.getAttribute('data-full') || '';
+          var col = btn.getAttribute('data-col') || '';
+          var row = btn.getAttribute('data-row') || '';
+          contentEl.textContent = full;
+          document.querySelector('#cellModal .modal-title').textContent = 'Cell — ' + col + ' (row ' + (parseInt(row,10)+1) + ')';
+          modalCopyBtn.setAttribute('data-clipboard', full);
+          cellModal.show();
+        });
+      });
+
+      // modal copy
+      modalCopyBtn.addEventListener('click', function(){
+        var text = modalCopyBtn.getAttribute('data-clipboard') || '';
+        navigator.clipboard?.writeText(text).then(function(){
+          var t = new bootstrap.Tooltip(modalCopyBtn, { title: 'Copied!', trigger: 'manual' });
+          t.show();
+          setTimeout(function(){ t.hide(); t.dispose(); }, 1000);
+        });
+      });
+    }
+  });
+</script>

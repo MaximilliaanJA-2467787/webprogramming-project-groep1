@@ -75,12 +75,35 @@ const Pages = {
         view: 'pages/auth/reset-password',
         route: '/auth/reset-password',
     },
-
-    wallet: {
+  
+   wallet: {
         name: 'Wallet',
         layout: 'layouts/default-layout',
         view: 'pages/user/wallet',
         route: '/wallet',
+    },
+
+    admin: {
+        index: {
+            name: 'Admin Dashboard',
+            layout: 'layouts/admin-layout',
+            view: 'pages/admin/index',
+            route: '/admin',
+        },
+
+        tables: {
+            name: 'Admin Dashboard',
+            layout: 'layouts/admin-layout',
+            view: 'pages/admin/tables',
+            route: '/admin/tables',
+        },
+
+        table: {
+            name: 'Admin Dashboard',
+            layout: 'layouts/admin-layout',
+            view: 'pages/admin/table',
+            route: '/admin/tables/:name',
+        },
     },
 };
 

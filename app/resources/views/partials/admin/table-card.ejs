@@ -1,0 +1,38 @@
+<div class="card h-100 shadow-sm border-0 position-relative">
+  <div class="card-body d-flex flex-column">
+    <div class="d-flex w-100 align-items-start gap-2">
+      <div class="flex-shrink-0">
+        <div class="bg-light rounded-3 d-inline-flex align-items-center justify-content-center" style="width:40px;height:40px">
+          <i class="bi bi-table fs-4 text-secondary" aria-hidden="true"></i>
+        </div>
+      </div>
+
+      <div class="flex-grow-1">
+        <h5 class="card-title mb-1 text-truncate" title="<%= table.name %>">
+          <a href="/admin/tables/<%= encodeURIComponent(table.name) %>" class="text-body">
+            <%= table.name %>
+          </a>
+        </h5>
+        <p class="card-text text-muted small mb-0">
+          <% if (table.columns && table.columns.length) { %>
+            <span class="badge bg-secondary me-1"><%= table.columns.length %></span> columns
+          <% } else { %>
+            <span class="text-muted">No columns</span>
+          <% } %>
+        </p>
+      </div>
+
+      <div class="flex-shrink-0">
+        <div class="dropdown">
+          <button class="btn btn-sm btn-outline-secondary" type="button" id="tableCardMenu-<%= table.name %>" data-bs-toggle="dropdown" aria-expanded="false" aria-label="Table actions">
+            <i class="bi bi-three-dots-vertical"></i>
+          </button>
+          <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="tableCardMenu-<%= table.name %>">
+            <li><a class="dropdown-item" href="/admin/tables/<%= encodeURIComponent(table.name) %>"><i class="bi bi-eye me-2"></i>View</a></li>
+            <li><a class="dropdown-item" href="/admin/tables/<%= encodeURIComponent(table.name) %>?download=csv"><i class="bi bi-download me-2"></i>Download CSV</a></li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

@@ -2,6 +2,7 @@ const bcrypt = require('bcrypt');
 const { v4: uuidv4 } = require('uuid');
 const { databaseRef } = require('../../base/database/index');
 const config = require('../../config/Config');
+const Pages = require('../routing/Pages');
 const walletModel = require('../../data/models/WalletModel');
 
 const SALT_ROUNDS = config.session.salt_rounds;
@@ -139,7 +140,9 @@ const AuthController = {
             req.session.user = { id: row.id, email: row.email, role: row.role, name: row.name };
 
             if (wantsHtml(req)) {
-                return res.redirect('/dashboard');
+                if (req.session.user.role == 'admin') return res.redirect('/admin/dashboard');
+
+                return redirectCorrectRole(req, res);
             }
             return res.json({
                 message: 'ok',
@@ -178,7 +181,7 @@ const AuthController = {
     // GET /auth/login (render page) — redirect if already logged in
     showLogin: (req, res) => {
         if (req.session && req.session.user && req.session.user.id) {
-            return res.redirect('/dashboard');
+            return redirectCorrectRole(req, res);
         }
 
         const { error, success } = req.query;
@@ -193,7 +196,7 @@ const AuthController = {
     // GET /auth/register (render page) — redirect if already logged in
     showRegister: (req, res) => {
         if (req.session && req.session.user && req.session.user.id) {
-            return res.redirect('/dashboard');
+            return redirectCorrectRole(req, res);
         }
 
         const { error, success } = req.query;
@@ -208,7 +211,7 @@ const AuthController = {
     // GET /auth/forgot-password (render)
     showForgotPassword: (req, res) => {
         if (req.session && req.session.user && req.session.user.id) {
-            return res.redirect('/dashboard');
+            return redirectCorrectRole(req, res);
         }
         const { success, error } = req.query;
         return res.render('pages/auth/forgot-password', {
@@ -232,7 +235,7 @@ const AuthController = {
     // GET /auth/reset-password?token=...
     showResetPassword: (req, res) => {
         if (req.session && req.session.user && req.session.user.id) {
-            return res.redirect('/dashboard');
+            return redirectCorrectRole(req, res);
         }
         const { token } = req.query;
         if (!token) {
@@ -268,17 +271,12 @@ const AuthController = {
             '/auth/login?success=' + encodeURIComponent('Password reset successfully')
         );
     },
-
-    // GET /dashboard
-    dashboard: (req, res) => {
-        if (!req.session.user) {
-        }
-
-        return res.render('pages/user/dashboard', {
-            title: 'Dashboard - CashLess Events',
-            user: req.session.user,
-        });
-    },
 };
+
+function redirectCorrectRole(req, res) {
+    if (req.session.user.role == 'admin') return res.redirect(Pages.admin.index.route);
+
+    return res.redirect('/dashboard');
+}
 
 module.exports = AuthController;
