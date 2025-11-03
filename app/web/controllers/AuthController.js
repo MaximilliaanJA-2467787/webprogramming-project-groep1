@@ -3,6 +3,7 @@ const { v4: uuidv4 } = require('uuid');
 const { databaseRef } = require('../../base/database/index');
 const config = require('../../config/Config');
 const Pages = require('../routing/Pages');
+const walletModel = require('../../data/models/WalletModel');
 
 const SALT_ROUNDS = config.session.salt_rounds;
 
@@ -75,6 +76,9 @@ const AuthController = {
             const user = databaseRef.get('SELECT id, email, name, role FROM Users WHERE id = ?', [
                 insertedId,
             ]);
+
+            // Maak wallet aan
+            await walletModel.createForUser(user.id);
 
             // Regenerate session to prevent fixation and store minimal user info
             await regenerateSession(req);

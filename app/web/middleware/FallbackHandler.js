@@ -1,4 +1,4 @@
-const error = require('../../utils/error');
+const error = require('../../utils/error')
 
 const FallbackHandler = (req, res, next) => {
     if (!res.headersSent) {
