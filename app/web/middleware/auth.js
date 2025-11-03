@@ -10,10 +10,9 @@ async function requireAuth(req, res, next) {
     if (!req.session || !req.session.user || !req.session.user.id) {
         return gotoLogin(res, 'This page requires authentication, please log in.');
     }
-
     await attachFreshUser(req, res);
 
-    return next();
+    // return next();
 }
 
 function requireRole(roles) {
