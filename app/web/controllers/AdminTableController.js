@@ -31,16 +31,16 @@ async function createVendor(req, res) {
     }
 
     // check user exists
-    const userRow = databaseRef.get('SELECT * FROM "Users" WHERE id = ?', [userId]);
-    if (!userRow) {
+    const user = await UserModel.getById(userId);
+    if (!user) {
       throw new Error(`User with id ${userId} not found.`);
     }
-
-    // ensure there is no existing vendor for this user (business rule)
-    const existingVendor = databaseRef.get('SELECT * FROM "Vendors" WHERE user_id = ?', [userId]);
-    if (existingVendor) {
-      throw new Error(`This user already has a vendor registered (vendor id: ${existingVendor.id}).`);
+    if (user.role === 'vendor') {
+      throw new Error(`User with id ${userId} is already a vendor.`);
     }
+
+    UserModel.update(userId, { role: 'vendor' });
+    
 
     // Insert vendor
     const insertSql =
