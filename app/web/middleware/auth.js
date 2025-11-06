@@ -26,7 +26,7 @@ function requireRole(roles) {
             return gotoLogin(req, res, 'This page requires authentication, please log in.');
         }
         const userRole = req.session.user.role;
-        console.log(userRole);
+
         if (!allowed.includes(userRole)) {
             return error(res, 403);
         }

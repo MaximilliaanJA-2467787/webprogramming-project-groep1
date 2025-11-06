@@ -76,6 +76,15 @@ const Pages = {
         route: '/wallet',
     },
 
+    vendor: {
+        index: {
+            name: 'Vendor Dashboard',
+            layout: 'layouts/vendor-layout',
+            view: 'pages/vendor/index',
+            route: '/vendor',
+        }
+    },
+
     admin: {
         index: {
             name: 'Admin Dashboard',

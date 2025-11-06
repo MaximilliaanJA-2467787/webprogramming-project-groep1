@@ -1,0 +1,40 @@
+<div class="card mb-4">
+  <div class="card-header d-flex justify-content-between align-items-center">
+    <strong>Menu</strong>
+    <a class="btn btn-sm btn-primary" href="/vendors/me/menu/new">Add item</a>
+  </div>
+
+  <div class="card-body p-0">
+    <table class="table table-sm mb-0">
+      <thead>
+        <tr>
+          <th>Item</th>
+          <th>Category</th>
+          <th>Price (tokens)</th>
+          <th>Sold</th>
+          <th class="text-end">Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        <% if ((menu || []).length === 0) { %>
+          <tr><td colspan="5" class="text-center py-4">No items yet</td></tr>
+        <% } else { %>
+          <% menu.forEach(item => { %>
+            <tr class="menu-item">
+              <td><%= item.name %></td>
+              <td><%= item.category_name || '—' %></td>
+              <td><%= item.price_tokens %></td>
+              <td><%= item.popularity_count || 0 %></td>
+              <td class="text-end">
+                <a href="/vendors/me/menu/<%= item.id %>/edit" class="btn btn-sm btn-outline-secondary">Edit</a>
+                <form action="/vendors/me/menu/<%= item.id %>/delete" method="POST" class="d-inline">
+                  <button class="btn btn-sm btn-outline-danger" onclick="return confirm('Delete this item?')">Delete</button>
+                </form>
+              </td>
+            </tr>
+          <% }) %>
+        <% } %>
+      </tbody>
+    </table>
+  </div>
+</div>

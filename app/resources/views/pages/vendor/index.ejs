@@ -1,0 +1,52 @@
+<div class="d-flex justify-content-between align-items-start mb-3">
+  <div>
+    <h1 class="h3 mb-0">Dashboard</h1>
+    <small class="text-muted">Welcome back, <%= vendor?.name || 'Vendor' %></small>
+  </div>
+
+  <div>
+    <a href="/vendors/me/analytics" class="btn btn-outline-primary me-2">Analytics</a>
+    <a href="/vendors/me/menu" class="btn btn-primary">Manage Menu</a>
+  </div>
+</div>
+
+<!-- Stats row -->
+<%- include('../../partials/vendor/stats', { stats: stats }) %>
+
+<div class="row">
+  <div class="col-12 col-lg-7">
+    <div class="card mb-4">
+      <div class="card-header"><strong>Sales (last 7 days)</strong></div>
+      <div class="card-body">
+        <div class="chart-wrapper mb-3">
+          <canvas id="salesChart"></canvas>
+        </div>
+        <small class="text-muted">Click a point to drill-down into transactions.</small>
+      </div>
+    </div>
+
+    <%- include('../../partials/vendor/transactions', { transactions: transactions, pagination: pagination }) %>
+  </div>
+
+  <div class="col-12 col-lg-5">
+    <%- include('../../partials/vendor/menu', { menu: menu }) %>
+
+    <div class="card">
+      <div class="card-header"><strong>Quick actions</strong></div>
+      <div class="card-body">
+        <a href="/vendors/me/menu/new" class="btn btn-outline-success mb-2 w-100">Add new item</a>
+        <a href="/vendors/me/qr" class="btn btn-outline-primary mb-2 w-100">Show payment QR</a>
+        <a href="/vendors/me/export" class="btn btn-outline-secondary w-100">Export report (CSV)</a>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  // Example: initialize chart with server-provided data
+  (function() {
+    const labels = JSON.stringify(chart?.labels || []);
+    const values = JSON.stringify(chart?.values || []);
+    initSalesChart(labels, values);
+  })();
+</script>

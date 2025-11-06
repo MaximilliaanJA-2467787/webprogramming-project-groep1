@@ -1,7 +1,9 @@
 // controllers/adminController.js
 const { databaseRef } = require('../../base/database');
+const UserModel = require('../../data/models/UserModel');
 const error = require('../../utils/error');
 const Pages = require('../routing/Pages');
+const AdminTableController = require('./AdminTableController');
 
 const AdminController = {
     // Admin dashboard: /admin
@@ -22,6 +24,7 @@ const AdminController = {
                 tables,
                 tablesCount: tableNames.length,
                 totalRows,
+                users: await UserModel.getAll()
             });
         } catch (err) {
             console.error(err);
@@ -112,6 +115,10 @@ const AdminController = {
             return error(res, 500);
         }
     },
+
+    create: AdminTableController.create,
+    delete: AdminTableController.delete,
+    edit: AdminTableController.edit
 };
 
 module.exports = AdminController;

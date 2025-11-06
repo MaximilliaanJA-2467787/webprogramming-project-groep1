@@ -7,10 +7,9 @@ const LogHandler = require('./web/middleware/LogHandler.js');
 const loadApiRoutes = require('./web/routing/ApiRoutes.js');
 const loadGuestRoutes = require('./web/routing/GuestRoutes.js');
 const loadAuthRoutes = require('./web/routing/AuthRoutes.js');
-const Pages = require('./web/routing/Pages.js');
-
 const loadAdminRoutes = require('./web/routing/AdminRoutes.js');
 const loadWalletRoutes = require('./web/routing/WalletRoutes.js');
+const loadVendorRoutes = require('./web/routing/VendorRoutes.js')
 
 class App extends ExpressApp {
     constructor() {
@@ -21,6 +20,7 @@ class App extends ExpressApp {
         app.use(LogHandler);
         app.use(LocalsHandler);
 
+        loadVendorRoutes(app);
         loadWalletRoutes(app);
         loadGuestRoutes(app);
         loadAuthRoutes(app);

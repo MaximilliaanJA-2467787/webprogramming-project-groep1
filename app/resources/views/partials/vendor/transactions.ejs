@@ -1,0 +1,49 @@
+<div class="card mb-4">
+  <div class="card-header d-flex justify-content-between">
+    <strong>Recent transactions</strong>
+    <small class="text-muted">Last <%= transactions.length %></small>
+  </div>
+
+  <div class="card-body p-0">
+    <div class="table-responsive">
+      <table class="table table-sm mb-0">
+        <thead>
+          <tr>
+            <th>Time</th>
+            <th>User</th>
+            <th>Item</th>
+            <th>Amount</th>
+            <th>Location</th>
+            <th>Status</th>
+          </tr>
+        </thead>
+        <tbody>
+          <% if ((transactions || []).length === 0) { %>
+            <tr><td colspan="6" class="text-center py-4">No transactions yet</td></tr>
+          <% } else { %>
+            <% transactions.forEach(tx => { %>
+              <tr>
+                <td><%= (new Date(tx.timestamp)).toLocaleString() %></td>
+                <td><%= tx.user_name || 'Guest' %></td>
+                <td><%= tx.item_name || '—' %></td>
+                <td><%= tx.amount_tokens %></td>
+                <td><%= tx.location || '—' %></td>
+                <td><span class="badge bg-<%= tx.status === 'completed' ? 'success' : (tx.status === 'busy' ? 'warning' : 'secondary') %>"><%= tx.status %></span></td>
+              </tr>
+            <% }) %>
+          <% } %>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <div class="card-footer d-flex justify-content-between align-items-center">
+    <div>
+      Showing <strong><%= pagination.offset + 1 %></strong> — <strong><%= Math.min(pagination.offset + pagination.limit, pagination.total) %></strong> of <strong><%= pagination.total %></strong>
+    </div>
+    <div>
+      <a href="?page=<%= pagination.page - 1 %>" class="btn btn-sm btn-outline-secondary <%= pagination.page <= 1 ? 'disabled' : '' %>">Prev</a>
+      <a href="?page=<%= pagination.page + 1 %>" class="btn btn-sm btn-outline-secondary <%= pagination.page >= pagination.totalPages ? 'disabled' : '' %>">Next</a>
+    </div>
+  </div>
+</div>

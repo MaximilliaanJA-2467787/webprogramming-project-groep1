@@ -1,4 +1,3 @@
-<!-- views/admin/components/table-content.ejs -->
 <div class="card">
   <div class="card-header bg-white d-flex flex-column flex-sm-row justify-content-between align-items-sm-center gap-2">
     <div>
@@ -34,6 +33,11 @@
       <div class="btn-group btn-group-sm" role="group" aria-label="Row actions">
         <a class="btn btn-outline-secondary" href="/admin/tables/<%= encodeURIComponent(table.name) %>?download=csv" title="Download CSV" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="bi bi-download"></i></a>
         <button class="btn btn-outline-secondary" id="refreshBtn" title="Refresh" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="bi bi-arrow-clockwise"></i></button>
+
+        <!-- Create row opens inline (we have a create row at the bottom) -->
+        <button class="btn btn-outline-primary" id="scrollToCreate" title="Create row">
+          <i class="bi bi-plus-lg"></i>
+        </button>
       </div>
     </div>
   </div>
@@ -46,41 +50,79 @@
             <% columns.forEach(function(col){ %>
               <th scope="col" class="text-nowrap"><%= col.name %></th>
             <% }) %>
+            <th class="text-nowrap">Actions</th>
           </tr>
         </thead>
 
         <tbody>
           <% if (!rows || rows.length === 0) { %>
-            <tr><td colspan="<%= columns.length %>" class="text-center text-muted py-4">No rows</td></tr>
+            <tr><td colspan="<%= columns.length + 1 %>" class="text-center text-muted py-4">No rows</td></tr>
           <% } else { %>
             <% rows.forEach(function(r, rowIndex){ %>
-              <tr>
-                <% columns.forEach(function(col, colIndex){ 
-                     var val = (r[col.name] === null || r[col.name] === undefined) ? '' : r[col.name];
-                     var text = (typeof val === 'object') ? JSON.stringify(val, null, 2) : String(val);
-                     var isJson = (typeof val === 'object');
-                     var display = text.length > 200 ? (text.slice(0, 200) + '…') : text;
-                %>
-                  <td class="align-top">
-                    <% if (isJson) { %>
-                      <div class="d-flex gap-1 align-items-start">
-                        <code class="flex-grow-1 text-wrap small" style="white-space:pre-wrap; max-height:3.2rem; overflow:hidden;"> <%= display %> </code>
-                        <div class="btn-group-vertical">
-                          <button class="btn btn-sm btn-outline-secondary" data-bs-toggle="tooltip" title="View JSON" data-full="<%= text.replace(/"/g, '&quot;') %>" data-col="<%= col.name %>" data-row="<%= rowIndex %>"><i class="bi bi-file-earmark-code"></i></button>
-                          <button class="btn btn-sm btn-outline-secondary copy-btn" data-clipboard="<%= text.replace(/"/g, '&quot;') %>" data-bs-toggle="tooltip" title="Copy"><i class="bi bi-clipboard"></i></button>
-                        </div>
-                      </div>
-                    <% } else { %>
-                      <div class="d-flex justify-content-between align-items-start gap-2">
-                        <span class="small text-truncate" title="<%= text.replace(/"/g, '&quot;') %>" style="max-width:100%"><%= display %></span>
-                        <button class="btn btn-sm btn-outline-secondary copy-btn" data-clipboard="<%= text.replace(/"/g, '&quot;') %>" data-bs-toggle="tooltip" title="Copy"><i class="bi bi-clipboard"></i></button>
-                      </div>
-                    <% } %>
+              <!-- inline edit form for each row -->
+              <tr class="row-form" data-row-id="<%= r.id %>" data-row-index="<%= rowIndex %>">
+                  <% columns.forEach(function(col){ 
+                       var value = (r[col.name] === null || r[col.name] === undefined) ? '' : r[col.name];
+                       var isObject = (typeof value === 'object');
+                       var text = isObject ? JSON.stringify(value) : String(value);
+                       var display = text.length > 200 ? (text.slice(0,200) + '…') : text;
+                       var inputId = 'input_' + (rowIndex) + '_' + col.name.replace(/[^A-Za-z0-9_]/g, '_');
+                       var isEditable = (col.name !== 'created_at'); // keep created_at readonly
+                  %>
+                    <td class="align-top">
+                      <% if (isObject) { %>
+                        <!-- JSON field: use textarea -->
+                        <textarea name="<%= col.name %>" id="<%= inputId %>" class="form-control form-control-sm row-field" rows="2" disabled
+                          data-original='<%- JSON.stringify(value).replace(/'/g,"&#39;") %>'><%- JSON.stringify(value) %></textarea>
+                      <% } else { %>
+                        <input name="<%= col.name %>" id="<%= inputId %>" class="form-control form-control-sm row-field" type="text" value="<%= text %>" 
+                          <% if (!isEditable) { %> readonly aria-readonly="true" <% } else { %> disabled <% } %>
+                          data-original="<%= text.replace(/"/g,'&quot;') %>">
+                      <% } %>
+                    </td>
+                  <% }) %>
+
+                  <td class="align-top text-end">
+                    <div class="btn-group" role="group">
+                      <button type="button" class="btn btn-sm btn-outline-secondary btn-edit">Edit</button>
+                      <button type="submit" class="btn btn-sm btn-success btn-save d-none">Save</button>
+                      <button type="button" class="btn btn-sm btn-secondary btn-cancel d-none">Cancel</button>
+
+                      <button type="button" class="btn btn-sm btn-outline-danger btn-delete" data-id="<%= r.id %>" data-bs-toggle="modal" data-bs-target="#deleteRowModal">
+                        <i class="bi bi-trash"></i>
+                      </button>
+                    </div>
                   </td>
-                <% }) %>
               </tr>
+            
             <% }) %>
           <% } %>
+
+          <!-- Create row: inline form as last table row -->
+          <form id="createRowForm" method="POST" action="/<%= encodeURIComponent(table.name) %>/create">
+            <tr class="table-success">
+              <% columns.forEach(function(col){
+                   if (col.name === 'id' || col.name === 'created_at') {
+                     // show empty cell for id/created_at
+              %>
+                <td></td>
+              <% } else {
+                   var numeric = /(?:^id$|_id$|lat|lon|longitude|latitude|count|amount|price|quantity)/i.test(col.name);
+                   var createInputId = 'create_' + col.name.replace(/[^A-Za-z0-9_]/g, '_');
+              %>
+                <td>
+                  <% if (numeric) { %>
+                    <input name="<%= col.name %>" id="<%= createInputId %>" class="form-control form-control-sm" type="number" step="any" />
+                  <% } else { %>
+                    <input name="<%= col.name %>" id="<%= createInputId %>" class="form-control form-control-sm" type="text" />
+                  <% } %>
+                </td>
+              <% } }) %>
+              <td class="text-end">
+                <button type="submit" class="btn btn-sm btn-primary">Create</button>
+              </td>
+            </tr>
+          </form>
         </tbody>
       </table>
     </div>
@@ -128,21 +170,202 @@
   </div>
 </div>
 
-<!-- Modal used to display large cell content (JSON / long text) -->
-<div class="modal fade" id="cellModal" tabindex="-1" aria-hidden="true">
-  <div class="modal-dialog modal-lg modal-dialog-scrollable">
+<!-- Delete confirmation modal (still required) -->
+<div class="modal fade" id="deleteRowModal" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog modal-sm modal-dialog-centered">
     <div class="modal-content">
-      <div class="modal-header">
-        <h5 class="modal-title">Cell content</h5>
-        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-      </div>
-      <div class="modal-body">
-        <pre id="cellModalContent" class="small" style="white-space:pre-wrap;"></pre>
-      </div>
-      <div class="modal-footer">
-        <button id="modalCopyBtn" type="button" class="btn btn-sm btn-outline-secondary">Copy</button>
-        <button type="button" class="btn btn-sm btn-secondary" data-bs-dismiss="modal">Close</button>
-      </div>
+      <form id="deleteRowForm" method="POST" action="/<%= encodeURIComponent(table.name) %>/delete">
+        <div class="modal-body">
+          <p class="mb-3">Are you sure you want to delete this row?</p>
+          <input type="hidden" name="id" id="delete_id">
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-sm btn-secondary" data-bs-dismiss="modal">Cancel</button>
+          <button id="deleteRowSubmit" type="submit" class="btn btn-sm btn-danger">Delete</button>
+        </div>
+      </form>
     </div>
   </div>
 </div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+  // tooltips init
+  var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
+  tooltipTriggerList.map(function (el) { return new bootstrap.Tooltip(el); });
+
+  // Refresh button
+  document.getElementById('refreshBtn')?.addEventListener('click', function () {
+    location.reload();
+  });
+
+  // Scroll to create row
+  document.getElementById('scrollToCreate')?.addEventListener('click', function () {
+    const el = document.getElementById('createRowForm');
+    if (el) el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+  });
+
+  // Copy buttons (fallback)
+  document.querySelectorAll('.copy-btn').forEach(function(btn) {
+    btn.addEventListener('click', function () {
+      const text = btn.getAttribute('data-clipboard') || '';
+      navigator.clipboard?.writeText(text).then(()=> {
+        btn.classList.remove('btn-outline-secondary');
+        btn.classList.add('btn-success');
+        setTimeout(()=>{ btn.classList.add('btn-outline-secondary'); btn.classList.remove('btn-success'); }, 800);
+      }).catch(()=> { alert('Copy failed'); });
+    });
+  });
+
+  // View JSON button hooks
+  document.querySelectorAll('.view-json-btn').forEach(function(btn) {
+    btn.addEventListener('click', function () {
+      const full = btn.getAttribute('data-full') || '';
+      document.getElementById('cellModalContent').textContent = full;
+      var modal = new bootstrap.Modal(document.getElementById('cellModal'));
+      modal.show();
+    });
+  });
+
+  // Modal copy button
+  document.getElementById('modalCopyBtn')?.addEventListener('click', function () {
+    const text = document.getElementById('cellModalContent').textContent || '';
+    navigator.clipboard?.writeText(text).then(()=> {});
+  });
+
+  // === Edit in-place logic ===
+  (function () {
+    // helper to escape form action path (table name available server-side)
+    const tableName = '<%= encodeURIComponent(table.name) %>';
+    const editAction = '/' + tableName + '/edit';
+
+    // iterate over row elements (tr.row-form)
+    document.querySelectorAll('tr.row-form').forEach(function (rowEl) {
+      const btnEdit = rowEl.querySelector('.btn-edit');
+      const btnSave = rowEl.querySelector('.btn-save');
+      const btnCancel = rowEl.querySelector('.btn-cancel');
+      const fields = Array.from(rowEl.querySelectorAll('.row-field'));
+
+      // capture originals from data-original or current value
+      const originalValues = fields.reduce((acc, f) => {
+        acc[f.name] = f.getAttribute('data-original') ?? f.value ?? '';
+        return acc;
+      }, {});
+
+      function setEditable(editable) {
+        fields.forEach(function (f) {
+          if (f.hasAttribute('readonly')) return; // keep readonly columns readonly
+          if (editable) {
+            f.removeAttribute('disabled');
+            f.classList.add('border-primary');
+          } else {
+            f.setAttribute('disabled', 'true');
+            f.classList.remove('border-primary');
+          }
+        });
+
+        if (btnEdit) btnEdit.classList.toggle('d-none', editable);
+        if (btnSave) btnSave.classList.toggle('d-none', !editable);
+        if (btnCancel) btnCancel.classList.toggle('d-none', !editable);
+      }
+
+      // wire edit
+      btnEdit?.addEventListener('click', function () {
+        setEditable(true);
+        // focus first editable field
+        const first = fields.find(f => !f.hasAttribute('readonly'));
+        if (first) first.focus();
+      });
+
+      // wire cancel
+      btnCancel?.addEventListener('click', function () {
+        fields.forEach(function (f) {
+          if (f.tagName.toLowerCase() === 'textarea' || f.type === 'text' || f.type === 'number') {
+            f.value = originalValues[f.name] ?? '';
+          } else {
+            // fallback for other input types
+            f.value = originalValues[f.name] ?? '';
+          }
+        });
+        setEditable(false);
+      });
+
+      // wire save: build real form and submit
+      btnSave?.addEventListener('click', function (ev) {
+        ev.preventDefault();
+        // disable UI save immediately
+        btnSave.setAttribute('disabled', 'true');
+
+        // create form element
+        const form = document.createElement('form');
+        form.method = 'POST';
+        form.action = editAction;
+        form.style.display = 'none';
+
+        // add CSRF token if present in meta tag
+        const csrfMeta = document.querySelector('meta[name="csrf-token"]');
+        if (csrfMeta && csrfMeta.content) {
+          const t = document.createElement('input');
+          t.type = 'hidden';
+          t.name = '_csrf';
+          t.value = csrfMeta.content;
+          form.appendChild(t);
+        }
+
+        // include row id (from data attribute)
+        const rowId = rowEl.dataset.rowId || rowEl.getAttribute('data-row-id');
+        if (rowId) {
+          const idInput = document.createElement('input');
+          idInput.type = 'hidden';
+          idInput.name = 'id';
+          idInput.value = rowId;
+          form.appendChild(idInput);
+        }
+
+        // append each current field value as hidden input
+        fields.forEach(function (f) {
+          const input = document.createElement('input');
+          input.type = 'hidden';
+          input.name = f.name;
+          // if it's a textarea/json, take its value (string)
+          input.value = f.value ?? '';
+          form.appendChild(input);
+        });
+
+        document.body.appendChild(form);
+
+        // submit the form (browser will perform normal POST)
+        form.submit();
+
+        // safety: restore disabled state if navigation doesn't happen quickly
+        setTimeout(() => btnSave.removeAttribute('disabled'), 3000);
+      });
+    });
+  })();
+
+  // DELETE modal: set id
+  document.querySelectorAll('.btn-delete').forEach(function(btn) {
+    btn.addEventListener('click', function () {
+      const id = btn.getAttribute('data-id');
+      if (id) {
+        const deleteId = document.getElementById('delete_id');
+        if (deleteId) deleteId.value = id;
+      }
+    });
+  });
+
+  // Disable multiple submits for create/delete forms
+  ['createRowForm','deleteRowForm'].forEach(function(id){
+    var f = document.getElementById(id);
+    if (!f) return;
+    f.addEventListener('submit', function(e){
+      var btn = f.querySelector('button[type="submit"]');
+      if (btn) btn.setAttribute('disabled','true');
+    });
+  });
+
+  // small accessibility: focus primary action if present
+  var primary = document.querySelector('a.btn-primary');
+  if (primary) primary.setAttribute('autofocus','');
+});
+</script>

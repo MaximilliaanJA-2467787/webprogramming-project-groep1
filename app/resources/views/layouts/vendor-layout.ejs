@@ -1,0 +1,43 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>
+    <%= title %>
+  </title>
+  <%- include('../partials/static/bootstrap.ejs') %>
+
+</head>
+  <body>
+    <%- include('../partials/navbar', { vendor: vendor }) %>
+
+    <main class="container my-4">
+      <%- body %>
+    </main>
+
+    <%- include('../partials/footer') %>
+
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script>
+      // Small helper to initialize charts if data exists
+      function initSalesChart(labels, values) {
+        const ctx = document.getElementById('salesChart');
+        if (!ctx) return;
+        new Chart(ctx.getContext('2d'), {
+          type: 'line',
+          data: {
+            labels: labels,
+            datasets: [{
+              label: 'Sales (tokens)',
+              data: values,
+              fill: false,
+              tension: 0.3
+            }]
+          },
+          options: { responsive: true, maintainAspectRatio: false }
+        });
+      }
+    </script>
+  </body>
+</html>

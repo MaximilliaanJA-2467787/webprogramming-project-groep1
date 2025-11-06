@@ -295,7 +295,9 @@ function redirectCorrectRole(req, res) {
     if (role === 'admin') {
         return res.redirect(Pages.admin.index.route);
     }
-    // if (role === 'vendor') return res.redirect(Pages.vendor.index.route);
+    if (role === 'vendor') {
+        return res.redirect(Pages.vendor.index.route);
+    }
 
     return res.redirect('/dashboard');
 }
