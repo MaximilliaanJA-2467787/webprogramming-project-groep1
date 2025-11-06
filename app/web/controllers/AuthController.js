@@ -4,6 +4,7 @@ const { databaseRef } = require('../../base/database/index');
 const config = require('../../config/Config');
 const Pages = require('../routing/Pages');
 const walletModel = require('../../data/models/WalletModel');
+const Logger = require('../../utils/Logger');
 
 const SALT_ROUNDS = config.session.salt_rounds;
 
@@ -182,15 +183,15 @@ const AuthController = {
             return redirectCorrectRole(req, res);
         }
 
-        const { error, success } = req.query;
+        const { error, success, redirect } = req.query;
         return res.render('pages/auth/login', {
             title: 'Login - CashLess Events',
             user: null,
             error: error ? decodeURIComponent(error) : null,
             success: success ? decodeURIComponent(success) : null,
+            redirect: redirect || null,
         });
     },
-
     // GET /auth/register (render page) — redirect if already logged in
     showRegister: (req, res) => {
         if (req.session && req.session.user && req.session.user.id) {
@@ -272,9 +273,32 @@ const AuthController = {
 };
 
 function redirectCorrectRole(req, res) {
-    if (req.session.user.role == 'admin') return res.redirect(Pages.admin.index.route);
+    const redirectTarget =
+        (req.body && req.body.redirect) ||
+        (req.query && req.query.redirect) ||
+        (req.params && req.params.redirect);
+
+    Logger.debug('redirectTarget:', String(redirectTarget));
+
+    // Only allow internal paths that start with single '/'
+    if (
+        typeof redirectTarget === 'string' &&
+        redirectTarget.length > 0 &&
+        redirectTarget.startsWith('/') &&
+        !redirectTarget.startsWith('//')
+    ) {
+        return res.redirect(redirectTarget);
+    }
+
+    // safety: check session existence before reading role
+    const role = req.session && req.session.user && req.session.user.role;
+    if (role === 'admin') {
+        return res.redirect(Pages.admin.index.route);
+    }
+    // if (role === 'vendor') return res.redirect(Pages.vendor.index.route);
 
     return res.redirect('/dashboard');
 }
+
 
 module.exports = AuthController;

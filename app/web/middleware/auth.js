@@ -2,14 +2,14 @@ const dbModule = require('../../base/database/index');
 const UserModel = require('../../data/models/UserModel');
 const error = require('../../utils/error');
 
-function gotoLogin(res, error) {
-    return res.status(401).redirect('/auth/login?error=' + encodeURIComponent(error));
+function gotoLogin(req, res, error) {
+    return res.status(401).redirect('/auth/login?error=' + encodeURIComponent(error) + '&redirect=' + encodeURIComponent(req.originalUrl));
 }
 
 function requireAuth() {
     return async (req, res, next) => {
         if (!req.session || !req.session.user || !req.session.user.id) {
-            return gotoLogin(res, 'This page requires authentication, please log in.');
+            return gotoLogin(req, res, 'This page requires authentication, please log in.');
         }
         await attachFreshUser(req, res);
         return next();
@@ -23,7 +23,7 @@ function requireRole(roles) {
 
     return async (req, res, next) => {
         if (!req.session || !req.session.user || !req.session.user.id) {
-            return gotoLogin(res, 'This page requires authentication, please log in.');
+            return gotoLogin(req, res, 'This page requires authentication, please log in.');
         }
         const userRole = req.session.user.role;
         console.log(userRole);
@@ -60,7 +60,7 @@ async function attachFreshUser(req, res, next) {
             }
             req.user = null;
             res.locals.user = null;
-            return gotoLogin(res, 'This page requires authentication, please log in.');
+            return gotoLogin(req, res, 'This page requires authentication, please log in.');
         }
 
         res.locals.user = user;
