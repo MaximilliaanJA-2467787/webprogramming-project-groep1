@@ -205,6 +205,27 @@ class TransactionModel extends BaseModel {
       throw new Error(`Error in ${this.name}.getTopItemForVendor: ${err.message}`);
     }
   }
+
+  static async getByUuid(uuid) {
+    const sql = `SELECT * FROM ${qident(this._tableName())} WHERE uuid = ?`;
+    try {
+      const row = this._db().get(sql, [uuid]);
+      return row || null;
+    } catch (err) {
+      throw new Error(`Error in ${this.name}.getByUuid: ${err.message}`);
+    }
+  }
+
+  static async markCompletedById(id) {
+    const sql = `UPDATE ${qident(this._tableName())} SET status = 'completed', timestamp = CURRENT_TIMESTAMP WHERE id = ?`;
+    try {
+      const info = this._db().run(sql, [id]);
+      if (!info || info.changes === 0) return null;
+      return this.getById(id);
+    } catch (err) {
+      throw new Error(`Error in ${this.name}.markCompletedById: ${err.message}`);
+    }
+  }
 }
 
 module.exports = TransactionModel;

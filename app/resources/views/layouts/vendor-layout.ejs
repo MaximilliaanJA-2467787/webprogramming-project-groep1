@@ -13,6 +13,7 @@
     <%- include('../partials/navbar', { vendor: vendor }) %>
 
     <main class="container my-4">
+      <%- include('../partials/vendor/breadcrumbs', { breadcrumbs: (typeof breadcrumbs !== 'undefined' ? breadcrumbs : null) }) %>
       <%- body %>
     </main>
 

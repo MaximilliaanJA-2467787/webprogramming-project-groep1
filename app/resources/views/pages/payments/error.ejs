@@ -1,0 +1,13 @@
+<div class="container my-5">
+  <div class="row justify-content-center">
+    <div class="col-12 col-md-8 col-lg-6 text-center">
+      <div class="alert alert-danger">
+        <i class="bi bi-exclamation-triangle me-2"></i><%= (typeof error !== 'undefined' && error) ? error : 'Payment failed.' %>
+      </div>
+      <a class="btn btn-primary" href="/payments/scan">Try Again</a>
+      <a class="btn btn-outline-secondary ms-2" href="/wallet">Go to Wallet</a>
+    </div>
+  </div>
+</div>
+
+

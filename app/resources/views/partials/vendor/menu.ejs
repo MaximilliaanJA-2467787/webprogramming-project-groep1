@@ -1,9 +1,18 @@
 <div class="card mb-4">
   <div class="card-header d-flex justify-content-between align-items-center">
     <strong>Menu</strong>
-    <a class="btn btn-sm btn-primary" href="/vendors/me/menu/new">Add item</a>
+    <a class="btn btn-sm btn-primary" href="/vendor/items/new">Add item</a>
   </div>
-
+  <div class="p-2">
+    <div id="errorAlert" class="alert alert-danger d-none" role="alert">
+      <i class="bi bi-exclamation-triangle me-2"></i>
+      <span id="errorMessage"></span>
+    </div>
+    <div id="successAlert" class="alert alert-success d-none" role="alert">
+      <i class="bi bi-check-circle me-2"></i>
+      <span id="successMessage"></span>
+    </div>
+  </div>
   <div class="card-body p-0">
     <table class="table table-sm mb-0">
       <thead>
@@ -26,8 +35,8 @@
               <td><%= item.price_tokens %></td>
               <td><%= item.popularity_count || 0 %></td>
               <td class="text-end">
-                <a href="/vendors/me/menu/<%= item.id %>/edit" class="btn btn-sm btn-outline-secondary">Edit</a>
-                <form action="/vendors/me/menu/<%= item.id %>/delete" method="POST" class="d-inline">
+                <a href="/vendor/items/<%= item.id %>/edit" class="btn btn-sm btn-outline-secondary">Edit</a>
+                <form action="/vendor/items/<%= item.id %>/delete" method="POST" class="d-inline">
                   <button class="btn btn-sm btn-outline-danger" onclick="return confirm('Delete this item?')">Delete</button>
                 </form>
               </td>

@@ -76,13 +76,47 @@ const Pages = {
         route: '/wallet',
     },
 
+    payments: {
+        pay: {
+            name: 'Pay',
+            layout: 'layouts/default-layout',
+            view: 'pages/payments/pay',
+            route: '/payments/pay/:uuid',
+        },
+        scan: {
+            name: 'Scan',
+            layout: 'layouts/default-layout',
+            view: 'pages/payments/scan',
+            route: '/payments/scan',
+        },
+        success: {
+            name: 'Payment Success',
+            layout: 'layouts/default-layout',
+            view: 'pages/payments/success',
+            route: '/payments/success',
+        },
+        error: {
+            name: 'Payment Error',
+            layout: 'layouts/default-layout',
+            view: 'pages/payments/error',
+            route: '/payments/error',
+        },
+    },
+
     vendor: {
         index: {
             name: 'Vendor Dashboard',
             layout: 'layouts/vendor-layout',
             view: 'pages/vendor/index',
             route: '/vendor',
-        }
+        },
+
+        checkout: {
+            name: 'Vendor Checkout',
+            layout: 'layouts/vendor-layout',
+            view: 'pages/vendor/checkout',
+            route: '/vendor/checkout',
+        },
     },
 
     admin: {

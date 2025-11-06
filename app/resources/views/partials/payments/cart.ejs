@@ -1,0 +1,36 @@
+<div class="card shadow-sm border-0">
+  <div class="card-header d-flex justify-content-between align-items-center">
+    <strong>Cart</strong>
+    <small class="text-muted" id="cart-count">0 items</small>
+  </div>
+
+  <div class="card-body p-2">
+    <div class="mb-2">
+      <label for="location-input" class="form-label small mb-1">Location / Note</label>
+      <input id="location-input" type="text" class="form-control form-control-sm" placeholder="e.g. Counter 1 or Table 4">
+    </div>
+    <div id="cart-lines" class="list-group mb-2">
+      <!-- cart lines injected here -->
+      <div class="text-center text-muted py-3" id="cart-empty">Cart is empty</div>
+    </div>
+
+    <div class="d-flex justify-content-between align-items-center mb-2">
+      <div class="small text-muted">Subtotal</div>
+      <div class="fw-bold" id="cart-subtotal">0 tok</div>
+    </div>
+
+    <div class="d-grid gap-2">
+      <button id="create-qr-btn" type="button" class="btn btn-outline-primary" data-bs-toggle="modal" data-bs-target="#paymentQRModal" disabled>
+        <i class="bi bi-qr-code me-2"></i>Create QR Code
+      </button>
+
+      <button id="checkout-btn" class="btn btn-primary" type="button" disabled>
+        <i class="bi bi-cash-stack me-2"></i>Checkout
+      </button>
+    </div>
+  </div>
+
+  <div class="card-footer small text-muted">
+    Tip: Tap Add quickly to build orders. Use +/- to change quantities.
+  </div>
+</div>

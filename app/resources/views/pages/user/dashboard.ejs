@@ -10,8 +10,8 @@
         <div class="d-flex align-items-center justify-content-end">
           <div class="text-end me-3">
             <div class="fw-semibold">Token Balance</div>
-            <div class="h4 mb-0">150 tokens</div>
-            <small class="text-white-50">€15.00</small>
+            <div class="h4 mb-0"><%= wallet ? wallet.balance_tokens : 0 %> tokens</div>
+            <small class="text-white-50">Wallet currency: <%= wallet ? wallet.currency : 'TOK' %></small>
           </div>
           <i class="bi bi-wallet2 display-4 text-white-50"></i>
         </div>
@@ -28,7 +28,7 @@
       <div class="col-12">
         <h3 class="fw-bold mb-4">Quick Actions</h3>
       </div>
-      <div class="col-md-3 mb-3">
+      <div class="col-6 col-md-3 mb-3">
         <div class="card h-100 border-0 shadow-sm">
           <div class="card-body text-center">
             <div class="bg-primary text-white rounded-circle d-inline-flex align-items-center justify-content-center mb-3" style="width: 60px; height: 60px;">
@@ -39,7 +39,7 @@
           </div>
         </div>
       </div>
-      <div class="col-md-3 mb-3">
+      <div class="col-6 col-md-3 mb-3">
         <div class="card h-100 border-0 shadow-sm">
           <div class="card-body text-center">
             <div class="bg-success text-white rounded-circle d-inline-flex align-items-center justify-content-center mb-3" style="width: 60px; height: 60px;">
@@ -50,7 +50,7 @@
           </div>
         </div>
       </div>
-      <div class="col-md-3 mb-3">
+      <div class="col-6 col-md-3 mb-3">
         <div class="card h-100 border-0 shadow-sm">
           <div class="card-body text-center">
             <div class="bg-warning text-white rounded-circle d-inline-flex align-items-center justify-content-center mb-3" style="width: 60px; height: 60px;">
@@ -58,10 +58,11 @@
             </div>
             <h6 class="fw-semibold">Scan QR</h6>
             <p class="text-muted small">Make a payment</p>
+            <a href="/payments/scan" class="stretched-link" aria-label="Scan QR to pay"></a>
           </div>
         </div>
       </div>
-      <div class="col-md-3 mb-3">
+      <div class="col-6 col-md-3 mb-3">
         <div class="card h-100 border-0 shadow-sm">
           <div class="card-body text-center">
             <div class="bg-info text-white rounded-circle d-inline-flex align-items-center justify-content-center mb-3" style="width: 60px; height: 60px;">
@@ -83,57 +84,29 @@
           </div>
           <div class="card-body">
             <div class="list-group list-group-flush">
-              <div class="list-group-item border-0 px-0">
-                <div class="d-flex justify-content-between align-items-center">
-                  <div class="d-flex align-items-center">
-                    <div class="bg-success text-white rounded-circle d-flex align-items-center justify-content-center me-3" style="width: 40px; height: 40px;">
-                      <i class="bi bi-cup-hot"></i>
-                    </div>
-                    <div>
-                      <div class="fw-semibold">Coffee - Central Bar</div>
-                      <small class="text-muted">2 hours ago</small>
-                    </div>
-                  </div>
-                  <div class="text-end">
-                    <div class="fw-semibold text-danger">-3 tokens</div>
-                    <small class="text-muted">€0.30</small>
-                  </div>
-                </div>
-              </div>
-              <div class="list-group-item border-0 px-0">
-                <div class="d-flex justify-content-between align-items-center">
-                  <div class="d-flex align-items-center">
-                    <div class="bg-primary text-white rounded-circle d-flex align-items-center justify-content-center me-3" style="width: 40px; height: 40px;">
-                      <i class="bi bi-plus-lg"></i>
-                    </div>
-                    <div>
-                      <div class="fw-semibold">Token Top-up</div>
-                      <small class="text-muted">Yesterday</small>
+              <% if (!transactions || transactions.length === 0) { %>
+                <div class="list-group-item border-0 px-0 text-muted">No recent activity</div>
+              <% } else { %>
+                <% transactions.forEach(function(t) { %>
+                  <div class="list-group-item border-0 px-0">
+                    <div class="d-flex justify-content-between align-items-center">
+                      <div class="d-flex align-items-center">
+                        <div class="bg-<%= t.type === 'purchase' ? 'warning' : 'primary' %> text-white rounded-circle d-flex align-items-center justify-content-center me-3" style="width: 40px; height: 40px;">
+                          <i class="bi <%= t.type === 'purchase' ? 'bi-bag' : 'bi-cash' %>"></i>
+                        </div>
+                        <div>
+                          <div class="fw-semibold"><%= t.item_name || t.vendor_name || t.type %></div>
+                          <small class="text-muted"><%= new Date(t.timestamp).toLocaleString() %></small>
+                        </div>
+                      </div>
+                      <div class="text-end">
+                        <div class="fw-semibold <%= t.walletSource_id === (wallet && wallet.id) ? 'text-danger' : 'text-success' %>"><%= t.walletSource_id === (wallet && wallet.id) ? '-' : '+' %><%= t.amount_tokens %> tokens</div>
+                        <small class="text-muted"><%= t.location || '—' %></small>
+                      </div>
                     </div>
                   </div>
-                  <div class="text-end">
-                    <div class="fw-semibold text-success">+50 tokens</div>
-                    <small class="text-muted">€5.00</small>
-                  </div>
-                </div>
-              </div>
-              <div class="list-group-item border-0 px-0">
-                <div class="d-flex justify-content-between align-items-center">
-                  <div class="d-flex align-items-center">
-                    <div class="bg-warning text-white rounded-circle d-flex align-items-center justify-content-center me-3" style="width: 40px; height: 40px;">
-                      <i class="bi bi-beer"></i>
-                    </div>
-                    <div>
-                      <div class="fw-semibold">Beer - Party Corner</div>
-                      <small class="text-muted">2 days ago</small>
-                    </div>
-                  </div>
-                  <div class="text-end">
-                    <div class="fw-semibold text-danger">-5 tokens</div>
-                    <small class="text-muted">€0.50</small>
-                  </div>
-                </div>
-              </div>
+                <% }); %>
+              <% } %>
             </div>
             <div class="text-center mt-3">
               <a href="/transactions" class="btn btn-outline-primary">View All Transactions</a>

@@ -1,0 +1,174 @@
+<div class="container my-4">
+  <div class="row g-4">
+    <div class="col-12 col-lg-8">
+      <div class="d-flex justify-content-between align-items-center mb-3">
+        <h5 class="mb-0">Menu</h5>
+        <div class="text-muted small">Pick items to add to cart</div>
+      </div>
+      <%- include('../../partials/payments/items') %>
+    </div>
+
+    <div class="col-12 col-lg-4">
+      <div class="sticky-top" style="top: 90px;">
+        <%- include('../../partials/payments/cart') %>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- QR Code Modal -->
+<%- include('../../partials/payments/qrcode-modal') %>
+
+
+<script>
+  // Cart state keyed by item id
+  const cart = new Map();
+  const cartLinesEl = document.getElementById('cart-lines');
+  const cartEmptyEl = document.getElementById('cart-empty');
+  const cartSubtotalEl = document.getElementById('cart-subtotal');
+  const cartCountEl = document.getElementById('cart-count');
+  const createQrBtn = document.getElementById('create-qr-btn');
+  const checkoutBtn = document.getElementById('checkout-btn');
+  const locationInput = document.getElementById('location-input');
+  const qrCodeImg = document.getElementById('qrcode-display');
+  let currentTxnUuid = null;
+  let pollTimer = null;
+
+  function getQtyInputForItem(itemId) {
+    return document.querySelector('.qty-input[data-item-id="' + itemId + '"]');
+  }
+
+  function formatTok(amount) {
+    return amount + ' tok';
+  }
+
+  function computeSubtotal() {
+    let total = 0;
+    cart.forEach(v => { total += v.price * v.quantity; });
+    return total;
+  }
+
+  function computeCount() {
+    let count = 0;
+    cart.forEach(v => { count += v.quantity; });
+    return count;
+  }
+
+  function renderCart() {
+    // Clear list (keep empty placeholder managed separately)
+    cartLinesEl.querySelectorAll('.cart-line').forEach(n => n.remove());
+
+    const isEmpty = cart.size === 0;
+    cartEmptyEl.style.display = isEmpty ? '' : 'none';
+    createQrBtn.disabled = isEmpty;
+    checkoutBtn.disabled = isEmpty;
+
+    if (!isEmpty) {
+      cart.forEach(item => {
+        const row = document.createElement('div');
+        row.className = 'list-group-item d-flex justify-content-between align-items-center cart-line';
+        row.innerHTML = '<div class="me-2">' + item.name + ' <span class="text-muted">x' + item.quantity + '</span></div>' +
+          '<div class="fw-bold">' + formatTok(item.price * item.quantity) + '</div>';
+        cartLinesEl.prepend(row);
+      });
+    }
+
+    const subtotal = computeSubtotal();
+    cartSubtotalEl.textContent = formatTok(subtotal);
+    const count = computeCount();
+    cartCountEl.textContent = count + (count === 1 ? ' item' : ' items');
+  }
+
+  // Quantity +/- handlers on item cards
+  document.querySelectorAll('.btn-incr').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const id = btn.dataset.itemId;
+      const input = getQtyInputForItem(id);
+      const next = Math.max(1, (parseInt(input.value || '1', 10) + 1));
+      input.value = String(next);
+    });
+  });
+
+  document.querySelectorAll('.btn-decr').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const id = btn.dataset.itemId;
+      const input = getQtyInputForItem(id);
+      const next = Math.max(1, (parseInt(input.value || '1', 10) - 1));
+      input.value = String(next);
+    });
+  });
+
+  // Add to cart from item cards
+  document.querySelectorAll('.add-to-cart').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const id = String(btn.dataset.itemId);
+      const name = btn.dataset.itemName;
+      const price = parseFloat(btn.dataset.itemPrice);
+      const qtyInput = getQtyInputForItem(id);
+      const qty = Math.max(1, parseInt((qtyInput && qtyInput.value) || '1', 10));
+
+      const existing = cart.get(id);
+      if (existing) {
+        existing.quantity += qty;
+      } else {
+        cart.set(id, { id, name, price, quantity: qty });
+      }
+      renderCart();
+    });
+  });
+
+  async function createQrCode() {
+    if (cart.size === 0) return;
+    // Choose first item id for backend requirement; send total as amount_tokens
+    const firstItem = cart.values().next().value;
+    const totalTokens = computeSubtotal();
+    const location = (locationInput && locationInput.value) || '';
+
+    try {
+      const res = await fetch('/vendor/checkout/qrcode', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          location: location,
+          amount_tokens: totalTokens,
+          item_id: firstItem.id,
+          cart: Array.from(cart.values()).map(i => ({ id: i.id, name: i.name, price: i.price, quantity: i.quantity }))
+        })
+      });
+      const data = await res.json();
+      if (data && data.qrCode) {
+        qrCodeImg.src = data.qrCode;
+        currentTxnUuid = data.uuid || null;
+        // Start polling for completion
+        if (currentTxnUuid) {
+          if (pollTimer) clearInterval(pollTimer);
+          pollTimer = setInterval(async () => {
+            try {
+              const s = await fetch('/api/v1/transactions/' + encodeURIComponent(currentTxnUuid));
+              const js = await s.json();
+              if (js && js.status === 'completed') {
+                clearInterval(pollTimer);
+                pollTimer = null;
+                // Reset UI by reloading checkout page
+                window.location.reload();
+              }
+            } catch (e) {
+              // ignore transient errors
+            }
+          }, 2000);
+        }
+      } else {
+        console.error('No qrCode in response', data);
+      }
+    } catch (e) {
+      console.error('Failed to generate QR code', e);
+    }
+  }
+
+  // Hook both buttons: quick QR (modal) and checkout
+  createQrBtn.addEventListener('click', () => { createQrCode(); });
+  checkoutBtn.addEventListener('click', () => { createQrCode(); });
+
+  // Initial paint
+  renderCart();
+</script>

@@ -5,8 +5,7 @@
   </div>
 
   <div>
-    <a href="/vendors/me/analytics" class="btn btn-outline-primary me-2">Analytics</a>
-    <a href="/vendors/me/menu" class="btn btn-primary">Manage Menu</a>
+    <a href="/vendor/checkout" class="btn btn-primary">Open Checkout</a>
   </div>
 </div>
 
@@ -18,7 +17,7 @@
     <div class="card mb-4">
       <div class="card-header"><strong>Sales (last 7 days)</strong></div>
       <div class="card-body">
-        <div class="chart-wrapper mb-3">
+        <div class="chart-wrapper mb-3" style="height: 260px;">
           <canvas id="salesChart"></canvas>
         </div>
         <small class="text-muted">Click a point to drill-down into transactions.</small>
@@ -34,9 +33,7 @@
     <div class="card">
       <div class="card-header"><strong>Quick actions</strong></div>
       <div class="card-body">
-        <a href="/vendors/me/menu/new" class="btn btn-outline-success mb-2 w-100">Add new item</a>
-        <a href="/vendors/me/qr" class="btn btn-outline-primary mb-2 w-100">Show payment QR</a>
-        <a href="/vendors/me/export" class="btn btn-outline-secondary w-100">Export report (CSV)</a>
+        <a href="/vendor/checkout" class="btn btn-outline-primary w-100">Open Checkout</a>
       </div>
     </div>
   </div>
@@ -45,8 +42,25 @@
 <script>
   // Example: initialize chart with server-provided data
   (function() {
-    const labels = JSON.stringify(chart?.labels || []);
-    const values = JSON.stringify(chart?.values || []);
-    initSalesChart(labels, values);
+    const labels = <%- JSON.stringify((chart && chart.labels) || []) %>;
+    const values = <%- JSON.stringify((chart && chart.values) || []) %>;
+    window.addEventListener('load', function() {
+      initSalesChart(labels, values);
+      const urlParams = new URLSearchParams(window.location.search);
+      const err = urlParams.get('error');
+      const ok = urlParams.get('success');
+      if (err) {
+        const e = document.getElementById('errorAlert');
+        const em = document.getElementById('errorMessage');
+        em.textContent = decodeURIComponent(err);
+        e.classList.remove('d-none');
+      }
+      if (ok) {
+        const s = document.getElementById('successAlert');
+        const sm = document.getElementById('successMessage');
+        sm.textContent = decodeURIComponent(ok);
+        s.classList.remove('d-none');
+      }
+    });
   })();
 </script>

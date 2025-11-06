@@ -1,0 +1,49 @@
+<div class="container my-4">
+  <div class="row justify-content-center">
+    <div class="col-12 col-md-8 col-lg-6">
+      <div class="card shadow-sm border-0">
+        <div class="card-header d-flex justify-content-between align-items-center">
+          <strong>Scan to Pay</strong>
+          <a href="/wallet" class="btn btn-sm btn-outline-secondary">Wallet</a>
+        </div>
+        <div class="card-body">
+          <div id="reader" style="width: 100%; min-height: 320px;"></div>
+          <div class="text-muted small mt-2">Allow camera access and point at the vendor QR code.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script src="https://unpkg.com/html5-qrcode" defer></script>
+<script>
+window.addEventListener('load', function() {
+  function startScanner() {
+    if (typeof Html5Qrcode === 'undefined') {
+      setTimeout(startScanner, 200);
+      return;
+    }
+    const readerId = 'reader';
+    const html5QrCode = new Html5Qrcode(readerId);
+    const config = { fps: 10, qrbox: 250 };
+    html5QrCode.start({ facingMode: 'environment' }, config, (decodedText) => {
+      try {
+        // Accept full URLs or path-only values
+        let url = decodedText.trim();
+        if (!/^https?:/i.test(url) && !url.startsWith('/')) {
+          // If QR contains just the uuid, redirect to payments route
+          url = '/payments/pay/' + encodeURIComponent(url);
+        }
+        window.location.href = url;
+      } catch (e) {
+        console.error('Invalid QR', e);
+      }
+    }, (err) => {
+      // ignore scan errors
+    }).catch(err => console.error('Camera start failed', err));
+  }
+  startScanner();
+});
+</script>
+
+

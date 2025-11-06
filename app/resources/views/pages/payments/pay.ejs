@@ -1,0 +1,52 @@
+<div class="container my-4">
+  <div class="row justify-content-center">
+    <div class="col-12 col-md-8 col-lg-6">
+      <div class="card shadow-sm border-0">
+        <div class="card-header d-flex justify-content-between align-items-center">
+          <strong>Confirm Payment</strong>
+          <a href="/payments/scan" class="btn btn-sm btn-outline-secondary">Scan another</a>
+        </div>
+        <div class="card-body">
+          <% if (typeof error !== 'undefined' && error) { %>
+            <div class="alert alert-danger"><%= error %></div>
+          <% } %>
+          <div class="mb-3">
+            <div class="small text-muted">Vendor</div>
+            <div class="fw-bold"><%= (vendor && vendor.name) || 'Unknown vendor' %></div>
+          </div>
+          <div class="mb-3">
+            <div class="small text-muted">Order</div>
+            <% if (lines && lines.length) { %>
+              <ul class="list-group list-group-flush">
+                <% lines.forEach(function(l){ %>
+                  <li class="list-group-item d-flex justify-content-between align-items-center">
+                    <div><%= l.item_name || 'Item' %> <span class="text-muted">x<%= l.quantity %></span></div>
+                    <div class="fw-bold"><%= (l.unit_price_tokens * l.quantity) %> tok</div>
+                  </li>
+                <% }) %>
+              </ul>
+            <% } else { %>
+              <div class="text-muted">No items (peer-to-peer)</div>
+            <% } %>
+          </div>
+          <div class="mb-3 d-flex justify-content-between">
+            <div class="small text-muted">Total</div>
+            <div class="h5 mb-0"><%= tx.amount_tokens %> tok</div>
+          </div>
+          <div class="mb-3">
+            <div class="small text-muted">Location</div>
+            <div><%= tx.location || '—' %></div>
+          </div>
+          <form method="POST" action="/payments/pay/<%= tx.uuid %>">
+            <button type="submit" class="btn btn-primary w-100" <%= tx.status === 'completed' ? 'disabled' : '' %>>
+              <i class="bi bi-check2-circle me-2"></i>
+              <%= tx.status === 'completed' ? 'Already paid' : 'Pay now' %>
+            </button>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+

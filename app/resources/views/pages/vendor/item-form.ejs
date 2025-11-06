@@ -1,0 +1,117 @@
+<div class="container my-3">
+  <div class="row justify-content-center">
+    <div class="col-12 col-lg-8">
+      <div class="card shadow-sm border-0">
+        <div class="card-header">
+          <strong><%= item ? 'Edit item' : 'New item' %></strong>
+        </div>
+        <div class="card-body">
+          <div id="errorAlert" class="alert alert-danger d-none" role="alert">
+            <i class="bi bi-exclamation-triangle me-2"></i>
+            <span id="errorMessage"></span>
+          </div>
+          <div id="successAlert" class="alert alert-success d-none" role="alert">
+            <i class="bi bi-check-circle me-2"></i>
+            <span id="successMessage"></span>
+          </div>
+          <form action="<%= action %>" method="POST" class="needs-validation" novalidate>
+            <div class="mb-3">
+              <label for="name" class="form-label">Name</label>
+              <input type="text" class="form-control" id="name" name="name" value="<%= item ? item.name : '' %>" required>
+            </div>
+
+            <div class="mb-3">
+              <label for="category_id" class="form-label">Category</label>
+              <select class="form-select" id="category_id" name="category_id">
+                <option value="">-</option>
+                <% (categories || []).forEach(function(c) { %>
+                  <option value="<%= c.id %>" <%= item && item.category_id === c.id ? 'selected' : '' %>><%= c.name %></option>
+                <% }); %>
+              </select>
+              <div class="form-text">Or add a new category below.</div>
+            </div>
+
+            <div class="mb-3">
+              <label for="new_category" class="form-label">New category (optional)</label>
+              <input type="text" class="form-control" id="new_category" name="new_category" placeholder="e.g. Beverages" />
+            </div>
+
+            <div class="mb-3">
+              <label for="price_tokens" class="form-label">Price (tokens)</label>
+              <input type="number" min="0" step="1" class="form-control" id="price_tokens" name="price_tokens" value="<%= item ? item.price_tokens : 0 %>" required>
+              <div class="form-text">Must be a non-negative integer.</div>
+            </div>
+
+            <div class="mb-3">
+              <label for="description" class="form-label">Description</label>
+              <textarea class="form-control" id="description" name="description" rows="3"><%= (item && item.metadata && (() => { try { const m = JSON.parse(item.metadata); return m.description || ''; } catch(e) { return ''; } })()) || '' %></textarea>
+            </div>
+
+            <div class="d-flex gap-2">
+              <button type="submit" class="btn btn-primary"><%= item ? 'Save changes' : 'Create item' %></button>
+              <a href="/vendor" class="btn btn-outline-secondary">Cancel</a>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<script>
+(function() {
+  const form = document.querySelector('form');
+  const nameInput = document.getElementById('name');
+  const priceInput = document.getElementById('price_tokens');
+  const newCatInput = document.getElementById('new_category');
+
+  function showError(message) {
+    const errorAlert = document.getElementById('errorAlert');
+    const errorMessage = document.getElementById('errorMessage');
+    errorMessage.textContent = message;
+    errorAlert.classList.remove('d-none');
+    const sa = document.getElementById('successAlert');
+    if (sa) sa.classList.add('d-none');
+  }
+  function showSuccess(message) {
+    const successAlert = document.getElementById('successAlert');
+    const successMessage = document.getElementById('successMessage');
+    successMessage.textContent = message;
+    successAlert.classList.remove('d-none');
+    const ea = document.getElementById('errorAlert');
+    if (ea) ea.classList.add('d-none');
+  }
+
+  // Display messages from querystring
+  window.addEventListener('DOMContentLoaded', function() {
+    const urlParams = new URLSearchParams(window.location.search);
+    const err = urlParams.get('error');
+    const ok = urlParams.get('success');
+    if (err) showError(decodeURIComponent(err));
+    if (ok) showSuccess(decodeURIComponent(ok));
+  });
+
+  form.addEventListener('submit', function(e) {
+    // Basic client validation
+    const name = (nameInput.value || '').trim();
+    const price = Number(priceInput.value);
+    const newCat = (newCatInput && newCatInput.value || '').trim();
+    let message = '';
+
+    if (!name) {
+      message = 'Name is required';
+    } else if (!Number.isFinite(price) || price < 0 || !Number.isInteger(price)) {
+      message = 'Price must be a non-negative integer';
+    } else if (newCat.length > 64) {
+      message = 'New category name is too long (max 64)';
+    }
+
+    if (message) {
+      e.preventDefault();
+      showError(message);
+    }
+  });
+})();
+</script>
+
