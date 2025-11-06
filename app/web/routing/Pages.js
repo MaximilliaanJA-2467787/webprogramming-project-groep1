@@ -76,7 +76,7 @@ const Pages = {
         route: '/auth/reset-password',
     },
   
-   wallet: {
+    wallet: {
         name: 'Wallet',
         layout: 'layouts/default-layout',
         view: 'pages/user/wallet',

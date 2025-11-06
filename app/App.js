@@ -21,9 +21,9 @@ class App extends ExpressApp {
         app.use(LogHandler);
         app.use(LocalsHandler);
 
+        loadWalletRoutes(app);
         loadGuestRoutes(app);
         loadAuthRoutes(app);
-        loadWalletRoutes(app);
         loadApiRoutes(app);
         loadAdminRoutes(app);
 

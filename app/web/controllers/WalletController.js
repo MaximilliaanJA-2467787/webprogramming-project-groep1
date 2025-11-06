@@ -1,4 +1,5 @@
-const walletModel = require('../../data/models/WalletModel')
+const walletModel = require('../../data/models/WalletModel');
+const Pages = require('../routing/Pages');
 
 const walletController = {
     /**
@@ -19,7 +20,7 @@ const walletController = {
                 title: 'My Wallet - CashLess Events',
                 wallet,
                 user: req.session.user,
-                layout: 'layouts/default-layout',
+                layout: Pages.wallet.layout,
                 success: success ? decodeURIComponent(success) : null,
                 error: error ? decodeURIComponent(error) : null,
             });

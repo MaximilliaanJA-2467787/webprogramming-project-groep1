@@ -6,13 +6,14 @@ function gotoLogin(res, error) {
     return res.status(401).redirect('/auth/login?error=' + encodeURIComponent(error));
 }
 
-async function requireAuth(req, res, next) {
-    if (!req.session || !req.session.user || !req.session.user.id) {
-        return gotoLogin(res, 'This page requires authentication, please log in.');
-    }
-    await attachFreshUser(req, res);
-
-    // return next();
+function requireAuth() {
+    return async (req, res, next) => {
+        if (!req.session || !req.session.user || !req.session.user.id) {
+            return gotoLogin(res, 'This page requires authentication, please log in.');
+        }
+        await attachFreshUser(req, res);
+        return next();
+    };
 }
 
 function requireRole(roles) {
