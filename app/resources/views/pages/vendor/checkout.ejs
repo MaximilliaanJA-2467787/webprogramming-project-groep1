@@ -117,12 +117,53 @@
     });
   });
 
+  function getCurrentPositionPromise(timeoutMs = 6000) {
+    return new Promise((resolve) => {
+      if (!navigator.geolocation) {
+        return resolve(null);
+      }
+
+      let resolved = false;
+      const success = (pos) => {
+        if (resolved) return;
+        resolved = true;
+        const { latitude, longitude } = pos.coords;
+        resolve({ latitude, longitude });
+      };
+      const error = () => {
+        if (resolved) return;
+        resolved = true;
+        resolve(null);
+      };
+
+      navigator.geolocation.getCurrentPosition(success, error, {
+        enableHighAccuracy: true,
+        maximumAge: 10000,
+        timeout: timeoutMs
+      });
+
+      // extra safety timeout in case browser doesn't call error callback
+      setTimeout(() => {
+        if (resolved) return;
+        resolved = true;
+        resolve(null);
+      }, timeoutMs + 200);
+    });
+  }
+
   async function createQrCode() {
     if (cart.size === 0) return;
-    // Choose first item id for backend requirement; send total as amount_tokens
     const firstItem = cart.values().next().value;
     const totalTokens = computeSubtotal();
     const location = (locationInput && locationInput.value) || '';
+
+    // try to get browser geolocation (vendor device). fallback to null.
+    let coords = null;
+    try {
+      coords = await getCurrentPositionPromise(6000); // 6s timeout
+    } catch (e) {
+      coords = null;
+    }
 
     try {
       const res = await fetch('/vendor/checkout/qrcode', {
@@ -132,14 +173,17 @@
           location: location,
           amount_tokens: totalTokens,
           item_id: firstItem.id,
-          cart: Array.from(cart.values()).map(i => ({ id: i.id, name: i.name, price: i.price, quantity: i.quantity }))
+          cart: Array.from(cart.values()).map(i => ({ id: i.id, name: i.name, price: i.price, quantity: i.quantity })),
+          // include coords (or null) so the server can persist them
+          vendor_lat: coords ? coords.latitude : null,
+          vendor_lng: coords ? coords.longitude : null
         })
       });
+
       const data = await res.json();
       if (data && data.qrCode) {
         qrCodeImg.src = data.qrCode;
         currentTxnUuid = data.uuid || null;
-        // Start polling for completion
         if (currentTxnUuid) {
           if (pollTimer) clearInterval(pollTimer);
           pollTimer = setInterval(async () => {
@@ -149,7 +193,6 @@
               if (js && js.status === 'completed') {
                 clearInterval(pollTimer);
                 pollTimer = null;
-                // Reset UI by reloading checkout page
                 window.location.reload();
               }
             } catch (e) {

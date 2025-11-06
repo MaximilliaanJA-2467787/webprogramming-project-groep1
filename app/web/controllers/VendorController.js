@@ -120,17 +120,17 @@ const VendorController = {
       const userId = req.session.user.id;
       const vendor =  await VendorModel.getByUserId(userId);
       if (!vendor) return res.status(403).json({ error: 'forbidden' });
-
+  
       const user = await UserModel.getById(userId);
       if (!user) return res.status(403).json({ error: 'forbidden' });
-
+  
       const walletDestination = await WalletModel.getByUserId(userId);
       if (!walletDestination) return res.status(403).json({ error: 'forbidden' });
-
+  
       if (!req.body || typeof req.body.amount_tokens === 'undefined') {
         return res.status(400).json({ error: 'missing fields' });
       }
-
+  
       const { v4: uuidv4 } = require('uuid');
       const txn = await TransactionModel.createTransaction({
         uuid: uuidv4(),
@@ -141,9 +141,10 @@ const VendorController = {
         amount_tokens: req.body.amount_tokens,
         item_id: req.body.item_id || null,
         status: 'pending',
-        metadata: JSON.stringify({ 
-          vendor_lat: vendor.latitude || null, 
-          vendor_lng: vendor.longitude || null,
+        metadata: JSON.stringify({
+          // prefer coordinates sent by client, otherwise fall back to DB vendor coords or null
+          vendor_lat: (typeof req.body.vendor_lat !== 'undefined') ? req.body.vendor_lat : (vendor.latitude || null),
+          vendor_lng: (typeof req.body.vendor_lng !== 'undefined') ? req.body.vendor_lng : (vendor.longitude || null),
           location_note: req.body.location || null
         }),
       });
