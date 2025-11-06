@@ -1,0 +1,107 @@
+<div class="container my-4">
+  <div class="row">
+    <div class="col-12 col-lg-8">
+      <div class="card shadow-sm border-0 mb-4">
+        <div class="card-header d-flex justify-content-between align-items-center">
+          <strong>Transaction Map</strong>
+          <a href="/vendor" class="btn btn-sm btn-outline-secondary">Back to Dashboard</a>
+        </div>
+        <div class="card-body p-0">
+          <div id="map" style="height: 500px; width: 100%;"></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-12 col-lg-4">
+      <div class="card shadow-sm border-0 mb-4">
+        <div class="card-header">
+          <strong>Top 3 Locations</strong>
+        </div>
+        <div class="card-body">
+          <% if (!topLocations || topLocations.length === 0) { %>
+            <div class="text-muted">No location data yet</div>
+          <% } else { %>
+            <ol class="list-group list-group-numbered">
+              <% topLocations.forEach(function(loc, idx) { %>
+                <li class="list-group-item d-flex justify-content-between align-items-start">
+                  <div class="ms-2 me-auto">
+                    <div class="fw-bold"><%= loc.location || 'Unknown' %></div>
+                    <small class="text-muted"><%= loc.transaction_count %> transactions</small>
+                  </div>
+                  <span class="badge bg-primary rounded-pill"><%= loc.total_tokens %> tok</span>
+                </li>
+              <% }); %>
+            </ol>
+          <% } %>
+        </div>
+      </div>
+
+      <div class="card shadow-sm border-0">
+        <div class="card-header">
+          <strong>Transaction Summary</strong>
+        </div>
+        <div class="card-body">
+          <div class="small text-muted mb-2">Total transactions on map:</div>
+          <div class="h4"><%= transactions ? transactions.length : 0 %></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script>
+(function() {
+  const transactions = <%- JSON.stringify(transactions || []) %>;
+  
+  // Initialize map - center on first transaction or default location
+  let centerLat = 50.8503; // Brussels default
+  let centerLng = 4.3517;
+  
+  if (transactions.length > 0) {
+    centerLat = transactions[0].geo.lat;
+    centerLng = transactions[0].geo.lng;
+  }
+
+  const map = L.map('map').setView([centerLat, centerLng], 13);
+  
+  // Add OpenStreetMap tiles
+  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+    attribution: '© OpenStreetMap contributors',
+    maxZoom: 19
+  }).addTo(map);
+
+  // Add markers for each transaction
+  transactions.forEach(function(tx) {
+    if (tx.geo && tx.geo.lat && tx.geo.lng) {
+      const popupContent = `
+        <div>
+          <strong>Transaction #${tx.id}</strong><br>
+          ${tx.item_name ? 'Item: ' + tx.item_name + '<br>' : ''}
+          Amount: ${tx.amount_tokens} tok<br>
+          ${tx.geo.location_note ? 'Location: ' + tx.geo.location_note + '<br>' : ''}
+          ${tx.geo.alt ? 'Altitude: ' + tx.geo.alt + ' m<br>' : ''}
+          <small>${new Date(tx.timestamp).toLocaleString()}</small>
+        </div>
+      `;
+      
+      L.marker([tx.geo.lat, tx.geo.lng])
+        .addTo(map)
+        .bindPopup(popupContent);
+    }
+  });
+
+  // Fit map to show all markers if there are any
+  if (transactions.length > 0) {
+    const bounds = transactions
+      .filter(tx => tx.geo && tx.geo.lat && tx.geo.lng)
+      .map(tx => [tx.geo.lat, tx.geo.lng]);
+    
+    if (bounds.length > 0) {
+      map.fitBounds(bounds, { padding: [50, 50] });
+    }
+  }
+})();
+</script>
+

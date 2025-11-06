@@ -49,6 +49,7 @@ const VendorController = {
         revenueTokens: await CurrencyModel.tokensToEur(tokensSold),
         uniqueVisitors: await TransactionModel.getUniqueVisitorsCount(vendor.id),
         topItem: await TransactionModel.getTopItemForVendor(vendor.id),
+        topLocations: await TransactionModel.getTopLocationsForVendor(vendor.id, 3),
         since: '7 days',
         period: '7d',
         revenueCurrency: '€', // optioneel: valuta conversie
@@ -140,6 +141,11 @@ const VendorController = {
         amount_tokens: req.body.amount_tokens,
         item_id: req.body.item_id || null,
         status: 'pending',
+        metadata: JSON.stringify({ 
+          vendor_lat: vendor.latitude || null, 
+          vendor_lng: vendor.longitude || null,
+          location_note: req.body.location || null
+        }),
       });
 
       // Persist optional line items (cart)
@@ -380,6 +386,40 @@ const VendorController = {
         return res.redirect(Pages.vendor.index.route + '?error=' + encodeURIComponent('Failed to delete item'));
       }
       return res.status(500).json({ error: 'internal error' });
+    }
+  },
+
+  mapView: async (req, res) => {
+    try {
+      const userId = req.session.user.id;
+      const vendor = await VendorModel.getByUserId(userId);
+      if (!vendor) {
+        if (wantsHtml(req)) {
+          return res.redirect(Pages.vendor.index.route + '?error=' + encodeURIComponent('Vendor not found'));
+        }
+        return error(res, 403);
+      }
+
+      const transactions = await TransactionModel.getTransactionsWithGeoForVendor(vendor.id);
+      const topLocations = await TransactionModel.getTopLocationsForVendor(vendor.id, 3);
+
+      return res.render('pages/vendor/map', {
+        layout: Pages.vendor.index.layout,
+        title: `${vendor.name} - Transaction Map`,
+        vendor,
+        transactions,
+        topLocations,
+        breadcrumbs: [
+          { label: 'Vendor', href: Pages.vendor.index.route },
+          { label: 'Transaction Map' }
+        ],
+      });
+    } catch (err) {
+      console.error(err);
+      if (wantsHtml(req)) {
+        return res.redirect(Pages.vendor.index.route + '?error=' + encodeURIComponent('Failed to load map'));
+      }
+      return error(res, 500);
     }
   }
 };

@@ -226,6 +226,62 @@ class TransactionModel extends BaseModel {
       throw new Error(`Error in ${this.name}.markCompletedById: ${err.message}`);
     }
   }
+
+  /**
+   * Get transactions with geolocation for a vendor (for map display)
+   */
+  static async getTransactionsWithGeoForVendor(vendorId) {
+    const sql = `
+      SELECT t.*, i.name AS item_name
+      FROM ${qident(this._tableName())} t
+      LEFT JOIN ${qident('Items')} i ON t.item_id = i.id
+      WHERE t.vendor_id = ? AND t.status = 'completed' AND t.metadata IS NOT NULL
+      ORDER BY t.timestamp DESC
+    `;
+    try {
+      const rows = this._db().all(sql, [vendorId]);
+      // Parse metadata to extract lat/lng/alt
+      return rows.map(row => {
+        let geo = { lat: null, lng: null, alt: null, location_note: null };
+        if (row.metadata) {
+          try {
+            const meta = JSON.parse(row.metadata);
+            geo.lat = meta.vendor_lat || null;
+            geo.lng = meta.vendor_lng || null;
+            geo.alt = meta.vendor_alt || null;
+            geo.location_note = meta.location_note || row.location || null;
+          } catch (e) {
+            // ignore parse errors
+          }
+        }
+        return { ...row, geo };
+      }).filter(row => row.geo.lat !== null && row.geo.lng !== null);
+    } catch (err) {
+      throw new Error(`Error in ${this.name}.getTransactionsWithGeoForVendor: ${err.message}`);
+    }
+  }
+
+  /**
+   * Get top locations by transaction count for a vendor
+   */
+  static async getTopLocationsForVendor(vendorId, limit = 3) {
+    const sql = `
+      SELECT 
+        t.location,
+        COUNT(1) AS transaction_count,
+        SUM(t.amount_tokens) AS total_tokens
+      FROM ${qident(this._tableName())} t
+      WHERE t.vendor_id = ? AND t.status = 'completed' AND t.location IS NOT NULL AND t.location != ''
+      GROUP BY t.location
+      ORDER BY transaction_count DESC
+      LIMIT ?
+    `;
+    try {
+      return this._db().all(sql, [vendorId, limit]);
+    } catch (err) {
+      throw new Error(`Error in ${this.name}.getTopLocationsForVendor: ${err.message}`);
+    }
+  }
 }
 
 module.exports = TransactionModel;

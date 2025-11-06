@@ -14,6 +14,9 @@ function loadVendorRoutes(app) {
     app.get('/vendor/items/:id/edit', requireRole(['vendor', 'admin']), VendorController.showEditItem);
     app.post('/vendor/items/:id', requireRole(['vendor', 'admin']), VendorController.updateItem);
     app.post('/vendor/items/:id/delete', requireRole(['vendor', 'admin']), VendorController.deleteItem);
+
+    // Map view
+    app.get('/vendor/map', requireRole(['vendor', 'admin']), VendorController.mapView);
 }
 
 module.exports = loadVendorRoutes;

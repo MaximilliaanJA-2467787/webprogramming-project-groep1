@@ -322,8 +322,13 @@ module.exports.seed = async function seed(databaseRef) {
         const insertedVendors = vendorUsers.map((vu, i) => {
             const name = i === 0 ? 'Coffee Corner' : 'Burger Shack';
             const loc = i === 0 ? 'Hall A' : 'Food Court';
-            vendorStmt.run(vu.id, name, loc, 4.4 + i * 0.01, 50.8 + i * 0.01);
-            return databaseRef.get('SELECT id, name, user_id FROM Vendors WHERE user_id = ?', [vu.id]);
+            // Realistic Brussels/Leuven area coordinates
+            const coords = [
+                { lng: 4.3517, lat: 50.8503 }, // Brussels Grand Place
+                { lng: 4.7009, lat: 50.8796 }, // Leuven center
+            ][i] || { lng: 4.4 + i * 0.01, lat: 50.8 + i * 0.01 };
+            vendorStmt.run(vu.id, name, loc, coords.lng, coords.lat);
+            return databaseRef.get('SELECT id, name, user_id, longitude, latitude FROM Vendors WHERE user_id = ?', [vu.id]);
         });
 
         // Items: 10 unique per vendor
@@ -366,7 +371,11 @@ module.exports.seed = async function seed(databaseRef) {
                 const buyerWallet = userIdToWallet.get(buyer.id);
                 const item = randomChoice(items);
                 const amount = (item && item.price_tokens) || randomInt(3, 12);
-
+                // jitter around vendor coords for realism ~ up to ~100m
+                const jitter = () => (Math.random() - 0.5) * 0.002; // ~0.002 deg ~ 200m max
+                const vlat = (vendor.latitude || 50.85) + jitter();
+                const vlng = (vendor.longitude || 4.35) + jitter();
+                const valt = 35 + Math.floor(Math.random() * 10); // altitude in meters (approx)
                 txStmt.run(
                     uuidv4(),
                     buyerWallet && buyerWallet.id,
@@ -377,7 +386,7 @@ module.exports.seed = async function seed(databaseRef) {
                     vendor.id,
                     randomChoice(['Counter 1', 'Counter 2', 'Window', 'Table 4']),
                     daysAgo(randomInt(0, 30)),
-                    JSON.stringify({ note: 'seeded purchase' }),
+                    JSON.stringify({ note: 'seeded purchase', vendor_lat: vlat, vendor_lng: vlng, vendor_alt: valt, location_note: 'Seed location' }),
                     'completed'
                 );
 
