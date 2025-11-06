@@ -140,8 +140,6 @@ const AuthController = {
             req.session.user = { id: row.id, email: row.email, role: row.role, name: row.name };
 
             if (wantsHtml(req)) {
-                if (req.session.user.role == 'admin') return res.redirect('/admin/dashboard');
-
                 return redirectCorrectRole(req, res);
             }
             return res.json({
