@@ -1,4 +1,5 @@
 const walletModel = require('../../data/models/WalletModel');
+const error = require('../../utils/error');
 const Pages = require('../routing/Pages');
 
 const walletController = {
@@ -6,13 +7,13 @@ const walletController = {
      * GET wallet page
      */
     show: async (req, res) => {
-        try{
+        try {
             const userId = req.session.user?.id || req.user?.id;
-            console.log('userId:', userId);
-            const wallet = await walletModel.getSummary(userId);
+            var wallet = await walletModel.getSummary(userId);
 
             if (!wallet) {
-                return res.redirect('dashboard?error=' + encodeURIComponent('Wallet not found'));
+                await walletModel.createForUser(userId);
+                wallet = await walletModel.getSummary(userId);
             }
 
             const { success, error } = req.query;
@@ -25,10 +26,9 @@ const walletController = {
                 error: error ? decodeURIComponent(error) : null,
             });
         } catch (err) {
-            console.error('Wallet show error', err);
-            return res.redirect('/dashboard?error=' + encodeURIComponent('Failed to load wallet'));
+            return error(res, 404);
         }
-    }
+    },
 };
 
 module.exports = walletController;

@@ -200,8 +200,8 @@ class WalletModel extends BaseModel {
 
     /**
      * geeft wallet data van user terug
-     * @param {number} userId 
-     * @returns 
+     * @param {number} userId
+     * @returns
      */
     static async getSummary(userId) {
         const sql = `
@@ -216,7 +216,7 @@ class WalletModel extends BaseModel {
         `;
 
         try {
-            const row  = this._db().get(sql, [userId]);
+            const row = this._db().get(sql, [userId]);
             return row || null;
         } catch (err) {
             throw new Error(`Error in ${this.name}.getSummary: ${err.message}`);

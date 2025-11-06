@@ -20,13 +20,6 @@ const Pages = {
         route: '/',
     },
 
-    wallet: {
-        name: 'Wallet',
-        layout: 'layouts/default-layout',
-        view: 'pages/guest/index',
-        route: '/',
-    },
-
     groups: {
         name: 'Groups',
         layout: 'layouts/default-layout',
@@ -75,7 +68,7 @@ const Pages = {
         view: 'pages/auth/reset-password',
         route: '/auth/reset-password',
     },
-  
+
     wallet: {
         name: 'Wallet',
         layout: 'layouts/default-layout',
