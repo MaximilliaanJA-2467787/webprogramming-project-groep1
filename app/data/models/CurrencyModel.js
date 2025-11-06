@@ -1,10 +1,7 @@
 const PRICE = 2.5;
 
 class CurrencyModel {
-    constructor() {
-        
-    }
-
+    constructor() {}
 
     static tokensToEur(tokenCount) {
         tokenCount * PRICE;

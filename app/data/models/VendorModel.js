@@ -44,7 +44,14 @@ class VendorModel extends BaseModel {
      * @param {boolean} allowMultiplePerUser (default false)
      * @returns Vendor(object)
      */
-    static async createForUser(userId, name, location = null, longitude = null, latitude = null, allowMultiplePerUser = false) {
+    static async createForUser(
+        userId,
+        name,
+        location = null,
+        longitude = null,
+        latitude = null,
+        allowMultiplePerUser = false
+    ) {
         if (!name || typeof name !== 'string') {
             throw new Error('Vendor name is required and must be a string');
         }

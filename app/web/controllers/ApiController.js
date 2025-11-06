@@ -37,8 +37,8 @@ const ApiController = {
                 console.error('tx status error', err);
                 return res.status(500).json({ error: 'internal error' });
             }
-        }
-    }
+        },
+    },
 };
 
 module.exports = ApiController;

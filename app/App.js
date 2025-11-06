@@ -12,7 +12,7 @@ const loadUserRoutes = require('./web/routing/UserRoutes.js');
 const loadAuthRoutes = require('./web/routing/AuthRoutes.js');
 const loadAdminRoutes = require('./web/routing/AdminRoutes.js');
 const loadWalletRoutes = require('./web/routing/WalletRoutes.js');
-const loadVendorRoutes = require('./web/routing/VendorRoutes.js')
+const loadVendorRoutes = require('./web/routing/VendorRoutes.js');
 
 class App extends ExpressApp {
     constructor() {

@@ -219,7 +219,7 @@ module.exports = [
     Items,
     Transactions,
     // New: per-transaction items for multi-item orders
-    (function(){
+    (function () {
         const TransactionItems = Table('TransactionItems');
         CommonColumns.id(TransactionItems);
         TransactionItems.col('transaction_id').integer().notNull();
@@ -298,7 +298,9 @@ module.exports.seed = async function seed(databaseRef) {
 
         const insertedUsers = users.map((u) => {
             userStmt.run(uuidv4(), u.email, passwordHash, u.name, u.role);
-            return databaseRef.get('SELECT id, email, role, name FROM Users WHERE email = ?', [u.email]);
+            return databaseRef.get('SELECT id, email, role, name FROM Users WHERE email = ?', [
+                u.email,
+            ]);
         });
 
         // Wallets for each user
@@ -308,9 +310,11 @@ module.exports.seed = async function seed(databaseRef) {
         const userIdToWallet = new Map();
         insertedUsers.forEach((u) => {
             // Give vendor and users some starting balance
-            const startBal = u.role === 'admin' ? 0 : (u.role === 'vendor' ? 0 : 1000);
+            const startBal = u.role === 'admin' ? 0 : u.role === 'vendor' ? 0 : 1000;
             walletStmt.run(u.id, startBal, 'TOK');
-            const w = databaseRef.get('SELECT id, balance_tokens FROM Wallets WHERE user_id = ?', [u.id]);
+            const w = databaseRef.get('SELECT id, balance_tokens FROM Wallets WHERE user_id = ?', [
+                u.id,
+            ]);
             userIdToWallet.set(u.id, w);
         });
 
@@ -328,7 +332,10 @@ module.exports.seed = async function seed(databaseRef) {
                 { lng: 4.7009, lat: 50.8796 }, // Leuven center
             ][i] || { lng: 4.4 + i * 0.01, lat: 50.8 + i * 0.01 };
             vendorStmt.run(vu.id, name, loc, coords.lng, coords.lat);
-            return databaseRef.get('SELECT id, name, user_id, longitude, latitude FROM Vendors WHERE user_id = ?', [vu.id]);
+            return databaseRef.get(
+                'SELECT id, name, user_id, longitude, latitude FROM Vendors WHERE user_id = ?',
+                [vu.id]
+            );
         });
 
         // Items: 10 unique per vendor
@@ -338,13 +345,43 @@ module.exports.seed = async function seed(databaseRef) {
         const allItemsByVendor = new Map();
         insertedVendors.forEach((vendor) => {
             const baseNames = vendor.name.includes('Coffee')
-                ? ['Espresso', 'Cappuccino', 'Latte', 'Americano', 'Mocha', 'Flat White', 'Iced Latte', 'Tea', 'Hot Chocolate', 'Cookie']
-                : ['Classic Burger', 'Cheeseburger', 'Bacon Burger', 'Veggie Burger', 'Fries', 'Onion Rings', 'Chicken Burger', 'Double Burger', 'Milkshake', 'Salad'];
+                ? [
+                      'Espresso',
+                      'Cappuccino',
+                      'Latte',
+                      'Americano',
+                      'Mocha',
+                      'Flat White',
+                      'Iced Latte',
+                      'Tea',
+                      'Hot Chocolate',
+                      'Cookie',
+                  ]
+                : [
+                      'Classic Burger',
+                      'Cheeseburger',
+                      'Bacon Burger',
+                      'Veggie Burger',
+                      'Fries',
+                      'Onion Rings',
+                      'Chicken Burger',
+                      'Double Burger',
+                      'Milkshake',
+                      'Salad',
+                  ];
             const items = [];
             for (let i = 0; i < 10; i++) {
                 const name = baseNames[i];
-                const categoryName = vendor.name.includes('Coffee') ? (i <= 7 ? 'Drinks' : 'Snacks') : (i <= 7 ? 'Food' : 'Desserts');
-                const cat = databaseRef.get('SELECT id FROM Categories WHERE name = ?', [categoryName]);
+                const categoryName = vendor.name.includes('Coffee')
+                    ? i <= 7
+                        ? 'Drinks'
+                        : 'Snacks'
+                    : i <= 7
+                      ? 'Food'
+                      : 'Desserts';
+                const cat = databaseRef.get('SELECT id FROM Categories WHERE name = ?', [
+                    categoryName,
+                ]);
                 const price = vendor.name.includes('Coffee') ? randomInt(2, 6) : randomInt(5, 12);
                 const meta = JSON.stringify({ description: `${name} by ${vendor.name}` });
                 itemStmt.run(vendor.id, name, cat && cat.id, price, randomInt(0, 250), meta);
@@ -386,16 +423,28 @@ module.exports.seed = async function seed(databaseRef) {
                     vendor.id,
                     randomChoice(['Counter 1', 'Counter 2', 'Window', 'Table 4']),
                     daysAgo(randomInt(0, 30)),
-                    JSON.stringify({ note: 'seeded purchase', vendor_lat: vlat, vendor_lng: vlng, vendor_alt: valt, location_note: 'Seed location' }),
+                    JSON.stringify({
+                        note: 'seeded purchase',
+                        vendor_lat: vlat,
+                        vendor_lng: vlng,
+                        vendor_alt: valt,
+                        location_note: 'Seed location',
+                    }),
                     'completed'
                 );
 
                 // Update wallet balances to reflect the transaction
                 if (buyerWallet) {
-                    databaseRef.run('UPDATE Wallets SET balance_tokens = balance_tokens - ? WHERE id = ?', [amount, buyerWallet.id]);
+                    databaseRef.run(
+                        'UPDATE Wallets SET balance_tokens = balance_tokens - ? WHERE id = ?',
+                        [amount, buyerWallet.id]
+                    );
                 }
                 if (vendorWallet) {
-                    databaseRef.run('UPDATE Wallets SET balance_tokens = balance_tokens + ? WHERE id = ?', [amount, vendorWallet.id]);
+                    databaseRef.run(
+                        'UPDATE Wallets SET balance_tokens = balance_tokens + ? WHERE id = ?',
+                        [amount, vendorWallet.id]
+                    );
                 }
             }
         });

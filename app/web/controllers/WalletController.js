@@ -39,7 +39,7 @@ const walletController = {
      * Add tokens to wallet
      */
     deposit: async (req, res) => {
-        const {amount} = req.body;
+        const { amount } = req.body;
         const amountNumber = parseFloat(amount);
 
         if (!amount || isNaN(amountNumber) || amountNumber < 0) {
@@ -60,7 +60,7 @@ const walletController = {
                 type: 'deposit',
                 amount_tokens: amountNumber,
                 status: 'completed',
-                metadata: JSON.stringify({ method: 'manual_deposit' })
+                metadata: JSON.stringify({ method: 'manual_deposit' }),
             });
 
             return res.redirect('/wallet');
@@ -75,7 +75,7 @@ const walletController = {
      * Remove tokens from wallet
      */
     withdraw: async (req, res) => {
-        const {amount} = req.body;
+        const { amount } = req.body;
         const amountNumber = parseFloat(amount);
 
         if (!amount || isNaN(amountNumber) || amountNumber < 0) {
@@ -96,12 +96,12 @@ const walletController = {
                 type: 'withdraw',
                 amount_tokens: amountNumber,
                 status: 'completed',
-                metadata: JSON.stringify({ method: 'manual_withdraw' })
+                metadata: JSON.stringify({ method: 'manual_withdraw' }),
             });
 
             return res.redirect('/wallet');
         } catch (err) {
-            if(err.message.includes('Insufficient balance')) {
+            if (err.message.includes('Insufficient balance')) {
                 return error(res, 402);
             }
             Logger.error('withdraw error: problem in try/catch');
@@ -123,14 +123,14 @@ const walletController = {
 
         try {
             const userId = req.session?.user?.id || req.user?.id;
-            const recipient = await userModel.findOne({email: recipient_email});
+            const recipient = await userModel.findOne({ email: recipient_email });
             if (!recipient) {
                 return error(res, 404);
             }
             if (recipient.id === userId) {
                 return error(res, 400);
             }
-            
+
             const sourceWallet = await walletModel.getByUserId(userId);
             const destinationWallet = await walletModel.getByUserId(recipient.id);
             if (!sourceWallet || !destinationWallet) {
@@ -145,20 +145,20 @@ const walletController = {
                 type: 'transfer',
                 amount_tokens: amountNumber,
                 status: 'completed',
-                metadata: JSON.stringify({ 
+                metadata: JSON.stringify({
                     recipient_name: recipient.name,
-                    recipient_email: recipient.email 
-                })
+                    recipient_email: recipient.email,
+                }),
             });
             return res.redirect('/wallet');
         } catch (err) {
-            if(err.message.includes('Insufficient balance')) {
+            if (err.message.includes('Insufficient balance')) {
                 return error(res, 402);
             }
             return error(res, 500);
         }
-    }, 
-    
+    },
+
     /**
      * GET /wallet/balance
      * Get current balance (JSON only - for API calls)
@@ -167,7 +167,7 @@ const walletController = {
         try {
             const userId = req.session?.user?.id || req.user?.id;
             const balance = await walletModel.getBalance(userId);
-            return res.JSON({balance});
+            return res.JSON({ balance });
         } catch (err) {
             return res.status(500).json({ error: 'Failed to get balance' });
         }
@@ -178,10 +178,10 @@ const walletController = {
      * Get wallet summary with user info (JSON only - for API calls)
      */
     summary: async (req, res) => {
-        try{
+        try {
             const userId = req.session?.user?.id || req.user?.id;
             const summary = await walletModel.getSummary(userId);
-            
+
             if (!summary) {
                 return res.status(404).json({ error: 'Wallet not found' });
             }

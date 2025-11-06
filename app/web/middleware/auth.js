@@ -3,7 +3,14 @@ const UserModel = require('../../data/models/UserModel');
 const error = require('../../utils/error');
 
 function gotoLogin(req, res, error) {
-    return res.status(401).redirect('/auth/login?error=' + encodeURIComponent(error) + '&redirect=' + encodeURIComponent(req.originalUrl));
+    return res
+        .status(401)
+        .redirect(
+            '/auth/login?error=' +
+                encodeURIComponent(error) +
+                '&redirect=' +
+                encodeURIComponent(req.originalUrl)
+        );
 }
 
 function requireAuth() {

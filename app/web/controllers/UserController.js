@@ -14,7 +14,8 @@ const UserController = {
              LEFT JOIN Items i ON t.item_id = i.id
              WHERE t.walletSource_id = (SELECT id FROM Wallets WHERE user_id = ?) 
                 OR t.walletDestination_id = (SELECT id FROM Wallets WHERE user_id = ?)
-             ORDER BY t.timestamp DESC LIMIT 10`, [user.id, user.id]
+             ORDER BY t.timestamp DESC LIMIT 10`,
+            [user.id, user.id]
         );
         return res.render('pages/user/dashboard', {
             layout: 'layouts/default-layout',

@@ -302,5 +302,4 @@ function redirectCorrectRole(req, res) {
     return res.redirect('/dashboard');
 }
 
-
 module.exports = AuthController;

@@ -24,7 +24,7 @@ const AdminController = {
                 tables,
                 tablesCount: tableNames.length,
                 totalRows,
-                users: await UserModel.getAll()
+                users: await UserModel.getAll(),
             });
         } catch (err) {
             console.error(err);
