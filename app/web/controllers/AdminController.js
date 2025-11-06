@@ -116,9 +116,7 @@ const AdminController = {
         }
     },
 
-    create: AdminTableController.create,
-    delete: AdminTableController.delete,
-    edit: AdminTableController.edit
+    createVendor: AdminTableController.createVendor,
 };
 
 module.exports = AdminController;

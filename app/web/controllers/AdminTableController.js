@@ -2,174 +2,98 @@ const Logger = require('../../utils/Logger');
 const databaseRef = require('../../base/database/index').databaseRef;
 const url = require('url');
 
-const tableColumnsCache = new Map();
-let allowedTables = null;
+const UserModel = require('../../data/models/UserModel');
+const Pages = require('../routing/Pages');
+const error = require('../../utils/error');
 
-/**
- * Load allowed tables from sqlite schema (cached).
- * If you prefer hard-coded whitelist, replace this logic with an array.
- */
-async function loadAllowedTables() {
-  if (allowedTables) return allowedTables;
+async function createVendor(req, res) {
   try {
-    // sqlite: read table names
-    const rows = databaseRef.all(`SELECT name FROM sqlite_master WHERE type='table' AND name NOT LIKE 'sqlite_%'`);
-    allowedTables = new Set(rows.map(r => r.name));
-  } catch (err) {
-    Logger.error('Failed loading tables list:', err);
-    allowedTables = new Set();
-  }
-  return allowedTables;
-}
+    // parse & sanitize input
+    const userId = req.body.user_id ? parseInt(req.body.user_id, 10) : null;
+    const name = (req.body.name || '').trim();
+    const location = req.body.location ? String(req.body.location).trim() : null;
+    // form fields names: latitude and longitude (string), can be empty
+    const latitude =
+      typeof req.body.latitude !== 'undefined' && req.body.latitude !== ''
+        ? parseFloat(req.body.latitude)
+        : null;
+    const longitude =
+      typeof req.body.longitude !== 'undefined' && req.body.longitude !== ''
+        ? parseFloat(req.body.longitude)
+        : null;
 
-/**
- * Get columns for a table using PRAGMA (cached)
- * returns array of column names
- */
-function getTableColumns(table) {
-  if (tableColumnsCache.has(table)) return tableColumnsCache.get(table);
-
-  try {
-    const cols = databaseRef.all(`PRAGMA table_info(${table})`); // returns objects with 'name'
-    const names = (cols || []).map(c => c.name);
-    tableColumnsCache.set(table, names);
-    return names;
-  } catch (err) {
-    Logger.error('Error fetching PRAGMA for table', table, err);
-    tableColumnsCache.set(table, []); // avoid retry storm
-    return [];
-  }
-}
-
-/**
- * Basic sanitizer: allow only alphanumeric + underscore table names (extra safety)
- */
-function isSafeIdentifier(name) {
-  return typeof name === 'string' && /^[A-Za-z0-9_]+$/.test(name);
-}
-
-/**
- * Build and run an INSERT for allowed columns present in body
- */
-async function create(req, res) {
-  const table = req.params && req.params.table;
-  if (!isSafeIdentifier(table)) return res.status(400).send('Invalid table');
-
-  const tables = await loadAllowedTables();
-  if (!tables.has(table)) return res.status(404).send('Table not found');
-
-  const columns = getTableColumns(table);
-  if (!columns || columns.length === 0) return res.status(500).send('Table has no columns or cannot read schema');
-
-  // pick fields from body that match table columns (ignore id/created_at if needed)
-  const body = req.body || {};
-  const allowedFields = columns.filter(c => c !== 'id' && c !== 'created_at' && Object.prototype.hasOwnProperty.call(body, c));
-
-  if (allowedFields.length === 0) {
-    return res.status(400).send('No valid fields provided');
-  }
-
-  const placeholders = allowedFields.map(() => '?').join(', ');
-  const colsSql = allowedFields.map(c => `"${c}"`).join(', ');
-  const values = allowedFields.map(f => body[f]);
-
-  const sql = `INSERT INTO "${table}" (${colsSql}) VALUES (${placeholders})`;
-
-  try {
-    const info = databaseRef.run(sql, values);
-    const newId = info && info.lastInsertRowid;
-
-    if (req.xhr || req.headers.accept && req.headers.accept.includes('application/json')) {
-      return res.json({ ok: true, id: newId });
+    // basic validation
+    if (!userId || Number.isNaN(userId)) {
+      throw new Error('Invalid user selected.');
     }
-    // redirect back to admin table listing (or referrer)
-    const redirectTo = req.get('Referer') || `/admin/${table}`;
-    return res.redirect(303, redirectTo + '?success=' + encodeURIComponent('Created'));
-  } catch (err) {
-    Logger.error('Create error', table, err);
-    return res.status(500).send('Failed to create row');
-  }
-}
-
-/**
- * Build and run a DELETE by id
- */
-async function remove(req, res) {
-  const table = req.params && req.params.table;
-  if (!isSafeIdentifier(table)) return res.status(400).send('Invalid table');
-
-  const tables = await loadAllowedTables();
-  if (!tables.has(table)) return res.status(404).send('Table not found');
-
-  const id = req.body && (req.body.id || req.body.rowId) ? Number(req.body.id || req.body.rowId) : null;
-  if (!id || !Number.isInteger(id)) {
-    return res.status(400).send('Missing or invalid id');
-  }
-
-  try {
-    const sql = `DELETE FROM "${table}" WHERE id = ?`;
-    const info = databaseRef.run(sql, [id]);
-
-    if (req.xhr || req.headers.accept && req.headers.accept.includes('application/json')) {
-      return res.json({ ok: true, changes: info && info.changes });
+    if (!name) {
+      throw new Error('Vendor name is required.');
     }
 
-    const referer = req.get('Referer') || `/admin/${table}`;
-    return res.redirect(303, referer + '?success=' + encodeURIComponent('Deleted'));
-  } catch (err) {
-    Logger.error('Delete error', table, err);
-    return res.status(500).send('Failed to delete row');
-  }
-}
-
-/**
- * Build and run an UPDATE by id for allowed columns
- */
-async function edit(req, res) {
-  const table = req.params && req.params.table;
-  if (!isSafeIdentifier(table)) return res.status(400).send('Invalid table');
-
-  const tables = await loadAllowedTables();
-  if (!tables.has(table)) return res.status(404).send('Table not found');
-
-  const body = req.body || {};
-  const id = body.id ? Number(body.id) : null;
-  if (!id || !Number.isInteger(id)) {
-    return res.status(400).send('Missing or invalid id');
-  }
-
-  const columns = getTableColumns(table);
-  if (!columns || columns.length === 0) return res.status(500).send('Table has no columns or cannot read schema');
-
-  // Pick updatable fields (exclude id and created_at)
-  const updatable = columns.filter(c => c !== 'id' && c !== 'created_at' && Object.prototype.hasOwnProperty.call(body, c));
-  if (updatable.length === 0) {
-    return res.status(400).send('No valid fields to update');
-  }
-
-  const setClauses = updatable.map(c => `"${c}" = ?`).join(', ');
-  const values = updatable.map(c => body[c]);
-  values.push(id); // for WHERE id = ?
-
-  const sql = `UPDATE "${table}" SET ${setClauses} WHERE id = ?`;
-
-  try {
-    const info = databaseRef.run(sql, values);
-
-    if (req.xhr || req.headers.accept && req.headers.accept.includes('application/json')) {
-      return res.json({ ok: true, changes: info && info.changes });
+    // check user exists
+    const userRow = databaseRef.get('SELECT * FROM "Users" WHERE id = ?', [userId]);
+    if (!userRow) {
+      throw new Error(`User with id ${userId} not found.`);
     }
 
-    const referer = req.get('Referer') || `/admin/${table}`;
-    return res.redirect(303, referer + '?success=' + encodeURIComponent('Updated'));
+    // ensure there is no existing vendor for this user (business rule)
+    const existingVendor = databaseRef.get('SELECT * FROM "Vendors" WHERE user_id = ?', [userId]);
+    if (existingVendor) {
+      throw new Error(`This user already has a vendor registered (vendor id: ${existingVendor.id}).`);
+    }
+
+    // Insert vendor
+    const insertSql =
+      'INSERT INTO "Vendors" (user_id, name, location, longitude, latitude) VALUES (?, ?, ?, ?, ?)';
+    const info = databaseRef.run(insertSql, [
+      userId,
+      name,
+      location,
+      // Important: keep order longitude, latitude consistent with schema
+      typeof longitude === 'number' && !Number.isNaN(longitude) ? longitude : null,
+      typeof latitude === 'number' && !Number.isNaN(latitude) ? latitude : null,
+    ]);
+
+    const newId = info && typeof info.lastInsertRowid !== 'undefined' ? info.lastInsertRowid : null;
+    Logger.info(`createVendor: created vendor id=${newId} for user ${userId}`);
+
+    // Redirect back to admin page (you can append a query flag for UI feedback)
+    return res.redirect('/admin?vendorCreated=1');
   } catch (err) {
-    Logger.error('Edit error', table, err);
-    return res.status(500).send('Failed to update row');
+    // Log the error and re-render the admin index with an error message so the modal can show it
+    Logger.error(`createVendor failed: ${err.message}`);
+
+    try {
+      // Build same data as adminController.index so we can render the page with users and tables
+      const tableInfo = await databaseRef.getAllTablesInfo(); // { tables: { users: [...], wallets: [...] } }
+      const tableNames = Object.keys(tableInfo.tables || {});
+      const tables = tableNames.map((name) => ({ name, columns: tableInfo.tables[name] }));
+
+      const totalRows = tableNames.reduce((acc, t) => {
+        const count = tableInfo.tables[t]?.length || 0;
+        return acc + count;
+      }, 0);
+
+      // fetch users for select list
+      const users = await UserModel.getAll();
+
+      // pass vendorError so your modal can display it
+      return res.render(Pages.admin.index.view, {
+        layout: Pages.admin.index.layout,
+        tables,
+        tablesCount: tableNames.length,
+        totalRows,
+        users,
+        vendorError: err.message,
+      });
+    } catch (renderErr) {
+      // If rendering fails, fallback to generic error response
+      Logger.error(`createVendor render fallback failed: ${renderErr.message}`);
+      return error(res, 500);
+    }
   }
 }
 
 module.exports = {
-  create,
-  delete: remove,
-  edit,
+  createVendor,
 };
