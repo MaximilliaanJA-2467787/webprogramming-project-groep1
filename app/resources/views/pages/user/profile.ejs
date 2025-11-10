@@ -1,0 +1,168 @@
+<div class="container mt-4">
+    <div class="row">
+        <div class="col-lg-8 mx-auto">
+            <!-- Page Header -->
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h1 class="h3 mb-0">My Profile</h1>
+                <a href="/dashboard" class="btn btn-outline-secondary">
+                    <i class="bi bi-arrow-left me-2"></i>Back to Dashboard
+                </a>
+            </div>
+
+            <!-- Success/Error Messages -->
+            <% if (success) { %>
+                <div class="alert alert-success alert-dismissible fade show" role="alert">
+                    <i class="bi bi-check-circle me-2"></i><%= success %>
+                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                </div>
+            <% } %>
+            <% if (error) { %>
+                <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                    <i class="bi bi-exclamation-triangle me-2"></i><%= error %>
+                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                </div>
+            <% } %>
+
+            <!-- Profile Information Card -->
+            <div class="card shadow-sm mb-4">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="mb-0"><i class="bi bi-person-circle me-2"></i>Profile Information</h5>
+                </div>
+                <div class="card-body">
+                    <form action="/profile/update" method="POST">
+                        <div class="mb-3">
+                            <label for="name" class="form-label">Full Name</label>
+                            <input 
+                                type="text" 
+                                class="form-control" 
+                                id="name" 
+                                name="name" 
+                                value="<%= user.name %>" 
+                                required
+                                maxlength="100"
+                            >
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label for="email" class="form-label">Email Address</label>
+                            <input 
+                                type="email" 
+                                class="form-control" 
+                                id="email" 
+                                name="email" 
+                                value="<%= user.email %>" 
+                                required
+                                maxlength="255"
+                            >
+                            <div class="form-text">This email is used for login and notifications.</div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label">Role</label>
+                            <input 
+                                type="text" 
+                                class="form-control" 
+                                value="<%= user.role.charAt(0).toUpperCase() + user.role.slice(1) %>" 
+                                disabled
+                            >
+                            <div class="form-text">Your account role cannot be changed.</div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label">Member Since</label>
+                            <input 
+                                type="text" 
+                                class="form-control" 
+                                value="<%= new Date(user.created_at).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' }) %>" 
+                                disabled
+                            >
+                        </div>
+
+                        <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                            <button type="submit" class="btn btn-primary">
+                                <i class="bi bi-save me-2"></i>Save Changes
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Change Password Card -->
+            <div class="card shadow-sm mb-4">
+                <div class="card-header bg-warning text-dark">
+                    <h5 class="mb-0"><i class="bi bi-shield-lock me-2"></i>Change Password</h5>
+                </div>
+                <div class="card-body">
+                    <form action="/profile/change-password" method="POST" id="passwordForm">
+                        <div class="mb-3">
+                            <label for="currentPassword" class="form-label">Current Password</label>
+                            <input 
+                                type="password" 
+                                class="form-control" 
+                                id="currentPassword" 
+                                name="currentPassword" 
+                                required
+                                minlength="8"
+                            >
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label for="newPassword" class="form-label">New Password</label>
+                            <input 
+                                type="password" 
+                                class="form-control" 
+                                id="newPassword" 
+                                name="newPassword" 
+                                required
+                                minlength="8"
+                            >
+                            <div class="form-text">Password must be at least 8 characters long.</div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="confirmPassword" class="form-label">Confirm New Password</label>
+                            <input 
+                                type="password" 
+                                class="form-control" 
+                                id="confirmPassword" 
+                                name="confirmPassword" 
+                                required
+                                minlength="8"
+                                oninput="this.setCustomValidity(this.value !== document.getElementById('newPassword').value ? 'Passwords do not match' : '')"
+                            >
+                            <div class="invalid-feedback">
+                                Passwords must match.
+                            </div>
+                        </div>
+
+                        <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                            <button type="submit" class="btn btn-warning">
+                                <i class="bi bi-key me-2"></i>Change Password
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Account Information Card (Read-only) -->
+            <div class="card shadow-sm mb-4">
+                <div class="card-header bg-info text-white">
+                    <h5 class="mb-0"><i class="bi bi-info-circle me-2"></i>Account Information</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row mb-2">
+                        <div class="col-md-4 fw-bold">User ID:</div>
+                        <div class="col-md-8"><code><%= user.id %></code></div>
+                    </div>
+                    <% if (user.uuid) { %>
+                    <div class="row mb-2">
+                        <div class="col-md-4 fw-bold">UUID:</div>
+                        <div class="col-md-8"><code><%= user.uuid %></code></div>
+                    </div>
+                    <% } %>
+                </div>
+            </div>
+
+        </div>
+    </div>
+</div>
