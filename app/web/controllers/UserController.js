@@ -42,7 +42,7 @@ const UserController = {
                 return error(res, 404);
             }
             const { success, error: errorMsg } = req.query;
-            
+
             return res.render('pages/user/profile', {
                 layout: 'layouts/default-layout',
                 title: 'My Profile - CashLess',
@@ -56,7 +56,6 @@ const UserController = {
         }
     },
 
-
     // POST /profile/update - Update profile info
     updateProfile: async (req, res) => {
         try {
@@ -67,7 +66,7 @@ const UserController = {
                 return error(res, 400);
             }
 
-            const existingUser = await userModel.findOne({email: email.trim()});
+            const existingUser = await userModel.findOne({ email: email.trim() });
             if (existingUser && existingUser.id != userId) {
                 return error(res, 409);
             }
@@ -82,7 +81,7 @@ const UserController = {
             }
 
             req.session.user.name = updatedUser.name;
-            req.session.user.email =updatedUser.email;
+            req.session.user.email = updatedUser.email;
 
             return res.render('pages/user/profile', {
                 layout: 'layouts/default-layout',
@@ -105,16 +104,16 @@ const UserController = {
 
             // validate input
             if (!currentPassword || !newPassword || !confirmPassword) {
-                Logger.info('not all fields filed in')
+                Logger.info('not all fields filed in');
                 return error(res, 400);
             }
             if (newPassword !== confirmPassword) {
-                Logger.info('newPassfword not equal to confirmedPassword')
+                Logger.info('newPassfword not equal to confirmedPassword');
                 return error(res, 400);
             }
 
             if (newPassword.length < 8) {
-                Logger.info('NewPassword not to short')
+                Logger.info('NewPassword not to short');
                 return error(res, 400);
             }
 
@@ -122,7 +121,7 @@ const UserController = {
             if (!user) {
                 return error(res, 404);
             }
-            
+
             // verify current password
             Logger.info('Reached password match');
             const passwordMatch = await bcrypt.compare(currentPassword, user.password_hash);

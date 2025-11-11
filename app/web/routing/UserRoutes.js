@@ -1,5 +1,5 @@
 const UserController = require('../controllers/UserController');
-const { requireAuth } = require('../middleware/auth')
+const { requireAuth } = require('../middleware/auth');
 const Pages = require('./Pages');
 
 function loadUserRoutes(app) {
