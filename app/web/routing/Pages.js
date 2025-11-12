@@ -17,7 +17,7 @@ const Pages = {
         name: 'Profile',
         layout: 'layouts/default-layout',
         view: 'pages/guest/index',
-        route: '/',
+        route: '/profile',
     },
 
     groups: {
