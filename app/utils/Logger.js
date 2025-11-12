@@ -51,6 +51,8 @@ class LoggerInstance {
     logRequest(req) {
         const { method, url, headers, body } = req;
 
+        const bodyCopy = Object.assign({}, body)
+
         this.info(`Incoming request`);
         console.log(
             this.colors.info + '┌──────────────────────────────────────────────' + this.colors.reset
@@ -62,10 +64,21 @@ class LoggerInstance {
             console.log(`        ${this.colors.debug}${key}: ${value}${this.colors.reset}`);
         }
 
-        if (body && Object.keys(body).length > 0) {
+        if (bodyCopy && Object.keys(bodyCopy).length > 0) {
+
+            for (let key of [
+                'password',
+                'password_hash',
+                'currentPassword',
+                'newPassword',
+                'confirmPassword',
+            ]) {
+                if (Object.keys(bodyCopy).includes(key)) bodyCopy[key] = 'HIDDEN VALUE';
+            }
+
             console.log(this.colors.dim + '    Body:' + this.colors.reset);
             console.log(
-                `        ${this.colors.debug}${JSON.stringify(body, null, 2)}${this.colors.reset}`
+                `        ${this.colors.debug}${JSON.stringify(bodyCopy, null, 2)}${this.colors.reset}`
             );
         }
 

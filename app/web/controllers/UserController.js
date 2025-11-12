@@ -6,6 +6,7 @@ const config = require('../../config/Config');
 const error = require('../../utils/error');
 const bcrypt = require('bcrypt');
 const Pages = require('../routing/Pages');
+const UserModel = require('../../data/models/UserModel');
 
 const SALT_ROUNDS = config.session.salt_rounds;
 
@@ -37,6 +38,7 @@ const UserController = {
     showProfile: async (req, res) => {
         try {
             const user = req.session.user;
+            const userModel = await UserModel.getById(user.id);
 
             if (!user) {
                 return error(res, 404);
@@ -46,7 +48,7 @@ const UserController = {
             return res.render('pages/user/profile', {
                 layout: 'layouts/default-layout',
                 title: 'My Profile - CashLess',
-                user,
+                user: userModel,
                 success: success ? decodeURIComponent(success) : null,
                 error: errorMsg ? decodeURIComponent(errorMsg) : null,
             });
@@ -95,6 +97,7 @@ const UserController = {
             return error(res, 500);
         }
     },
+
 
     // POST /profile/change-password - Change password
     changePassword: async (req, res) => {
