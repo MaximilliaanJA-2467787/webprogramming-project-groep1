@@ -20,16 +20,69 @@ const walletController = {
                 wallet = await walletModel.getSummary(userId);
             }
 
+            Logger.debug('Before getTransactionByUserId');
+            const transactions = await transactionModel.getTransactionByUserId(userId, {
+                status: 'completed',
+                type: 'purchase',
+                orderDir: 'DESC'
+            });
+
+            if (!transactions) {
+                Logger.error('Show error: transactions not retreaved');
+                return error(res, 404);
+            }
+
+        const categorySums = {};
+        for (const transaction of transactions) {
+            const categorie = transaction.item_category || 'Overige';
+            const tokens = Number(transaction.amount_tokens) || 0;
+            
+            // Als categorie nog niet bestaat, maak deze aan
+            if (!categorySums[categorie]) {
+                categorySums[categorie] = {
+                    name: categorie,
+                    totalTokens: 0,
+                    numberOfPurchases: 0
+                };
+            }
+            
+            categorySums[categorie].totalTokens += tokens;
+            categorySums[categorie].numberOfPurchases += 1;
+        }
+    
+        const categories = Object.values(categorySums);
+        
+        const chartData = {
+            labels: categories.map(cat => cat.name),
+            datasets: [{
+                data: categories.map(cat => cat.totalTokens),
+                backgroundColor: [
+                    '#FF6384', // Roze
+                    '#36A2EB', // Blauw
+                    '#FFCE56', // Geel
+                    '#4BC0C0', // Turquoise
+                    '#9966FF', // Paars
+                    '#FF9F40', // Oranje
+                    '#E74C3C', // Rood
+                    '#95A5A6'  // Grijs
+                ]
+            }]
+        };
+
             const { success, error } = req.query;
             return res.render('pages/user/wallet', {
                 title: 'My Wallet - CashLess Events',
                 wallet,
+                transactions,
+                chartData: JSON.stringify(chartData),
+                categoryData: categories,
                 user: req.session.user,
                 layout: Pages.wallet.layout,
                 success: success ? decodeURIComponent(success) : null,
                 error: error ? decodeURIComponent(error) : null,
             });
         } catch (err) {
+            Logger.error('Show wallet: error in catch')
             return error(res, 404);
         }
     },
