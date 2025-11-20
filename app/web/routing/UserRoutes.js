@@ -1,3 +1,4 @@
+const AnalyticsController = require('../controllers/AnalyticsController');
 const UserController = require('../controllers/UserController');
 const { requireAuth } = require('../middleware/auth');
 const Pages = require('./Pages');
@@ -10,6 +11,9 @@ function loadUserRoutes(app) {
     app.get('/profile', requireAuth(), UserController.showProfile);
     app.post('/profile/update', requireAuth(), UserController.updateProfile);
     app.post('/profile/change-password', requireAuth(), UserController.changePassword);
+
+    // Analytics route
+    app.get('/analytics', requireAuth(), AnalyticsController.show);
 
     // Scan shortcut via controller
     const PaymentsController = require('../controllers/PaymentsController');

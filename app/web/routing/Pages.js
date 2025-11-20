@@ -69,6 +69,13 @@ const Pages = {
         route: '/auth/reset-password',
     },
 
+    analytics: {
+    name: 'Analytics',
+    layout: 'layouts/default-layout',
+    view: 'pages/user/analytics',
+    route: '/analytics',
+    },
+
     wallet: {
         name: 'Wallet',
         layout: 'layouts/default-layout',

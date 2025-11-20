@@ -6,6 +6,7 @@ const LocalsHandler = (req, res, next) => {
     const userActions = [
         { page: Pages.profile, icon: 'bi bi-person' },
         { page: Pages.wallet, icon: 'bi bi-wallet2' },
+        { page: Pages.analytics, icon: 'bi bi-graph-up' },
         { page: Pages.groups, icon: 'bi bi-people' },
         { page: Pages.budgets, icon: 'bi bi-piggy-bank' },
     ];
