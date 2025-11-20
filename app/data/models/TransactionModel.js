@@ -1,5 +1,6 @@
 const BaseModel = require('../../base/model');
 const qident = require('../../utils/qident');
+const Logger = require('../../utils/Logger');
 
 /**
  * TransactionModel - represents transactions & analytics helpers
@@ -287,6 +288,96 @@ class TransactionModel extends BaseModel {
             throw new Error(`Error in ${this.name}.getTopLocationsForVendor: ${err.message}`);
         }
     }
+
+    /**
+     * Get transactions for a specific user
+     * options: { 
+     *   limit=infinite, 
+     *   offset=0, 
+     *   status, 
+     *   type,
+     *   since (ISO string),
+     *   until (ISO string),
+     *   vendor_id,
+     *   item_id,
+     *   orderBy = 'timestamp',
+     *   orderDir = 'DESC'  }
+     */
+    static async getTransactionByUserId(userId, options = {}) {
+        const limit = Number.isFinite(Number(options.limit)) ? Number(options.limit) : 0;
+        const offset = Number.isFinite(Number(options.offset)) ? Number(options.offset) : 0;
+        const orderBy = options.orderBy || 'timestamp';
+        const orderDir = (options.orderDir || 'DESC').toUpperCase();
+        const params = [userId];
+
+        let sql = `
+        SELECT
+            t.*,
+            i.name AS item_name,
+            i.price_tokens AS item_price,
+            c.name AS item_category,
+            v.name AS vendor_name,
+            v.location AS vendor_location
+        FROM ${qident(this._tableName())} t
+        LEFT JOIN ${qident('Items')} i ON t.item_id = i.id
+        LEFT JOIN ${qident('Categories')} c ON i.category_id = c.id
+        LEFT JOIN ${qident('Vendors')} v ON t.vendor_id = v.id
+        LEFT JOIN ${qident('Wallets')} w ON t.walletSource_id = w.id
+        WHERE       (t.walletSource_id IN (SELECT id FROM Wallets WHERE user_id = ?)
+                    OR
+                    t.walletDestination_id IN (SELECT id FROM Wallets WHERE user_id = ?))`;
+        params.push(userId);
+
+        if (options.status) {
+            sql += ` AND t.status = ?`;
+            params.push(options.status);
+        }
+        
+        if (options.type) {
+            sql += ` AND t.type = ?`;
+            params.push(options.type);
+        }
+        
+        if (options.vendor_id) {
+            sql += ` AND t.vendor_id = ?`;
+            params.push(options.vendor_id);
+        }
+        
+        if (options.item_id) {
+            sql += ` AND t.item_id = ?`;
+            params.push(options.item_id);
+        }
+        
+        if (options.since) {
+            sql += ` AND t.timestamp >= ?`;
+            params.push(options.since);
+        }
+        
+        if (options.until) {
+            sql += ` AND t.timestamp <= ?`;
+            params.push(options.until);
+        }
+
+        // Valideer orderBy om SQL injection te voorkomen
+        const allowedOrderFields = ['timestamp', 'amount_tokens', 'status', 'type'];
+        const safeOrderBy = allowedOrderFields.includes(orderBy) ? orderBy : 'timestamp';
+        const safeOrderDir = orderDir === 'ASC' ? 'ASC' : 'DESC';
+        
+        if (limit > 0) {
+            sql += ` ORDER BY t.${safeOrderBy} ${safeOrderDir} LIMIT ? OFFSET ?`;
+            params.push(limit, offset);
+        } else {
+            sql += ` ORDER BY t.${safeOrderBy} ${safeOrderDir} LIMIT -1 OFFSET ?`;
+            params.push(offset);
+        }
+
+        try {
+            return this._db().all(sql, params);
+        } catch (err) {
+            throw new Error(`Error in ${this.name}.getByUserId: ${err.message}`);
+        }
+    }
+
 }
 
 module.exports = TransactionModel;
