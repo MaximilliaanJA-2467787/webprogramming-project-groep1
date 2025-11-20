@@ -291,10 +291,10 @@ class TransactionModel extends BaseModel {
 
     /**
      * Get transactions for a specific user
-     * options: { 
-     *   limit=infinite, 
-     *   offset=0, 
-     *   status, 
+     * options: {
+     *   limit=infinite,
+     *   offset=0,
+     *   status,
      *   type,
      *   since (ISO string),
      *   until (ISO string),
@@ -332,27 +332,27 @@ class TransactionModel extends BaseModel {
             sql += ` AND t.status = ?`;
             params.push(options.status);
         }
-        
+
         if (options.type) {
             sql += ` AND t.type = ?`;
             params.push(options.type);
         }
-        
+
         if (options.vendor_id) {
             sql += ` AND t.vendor_id = ?`;
             params.push(options.vendor_id);
         }
-        
+
         if (options.item_id) {
             sql += ` AND t.item_id = ?`;
             params.push(options.item_id);
         }
-        
+
         if (options.since) {
             sql += ` AND t.timestamp >= ?`;
             params.push(options.since);
         }
-        
+
         if (options.until) {
             sql += ` AND t.timestamp <= ?`;
             params.push(options.until);
@@ -362,7 +362,7 @@ class TransactionModel extends BaseModel {
         const allowedOrderFields = ['timestamp', 'amount_tokens', 'status', 'type'];
         const safeOrderBy = allowedOrderFields.includes(orderBy) ? orderBy : 'timestamp';
         const safeOrderDir = orderDir === 'ASC' ? 'ASC' : 'DESC';
-        
+
         if (limit > 0) {
             sql += ` ORDER BY t.${safeOrderBy} ${safeOrderDir} LIMIT ? OFFSET ?`;
             params.push(limit, offset);
@@ -377,7 +377,6 @@ class TransactionModel extends BaseModel {
             throw new Error(`Error in ${this.name}.getByUserId: ${err.message}`);
         }
     }
-
 }
 
 module.exports = TransactionModel;

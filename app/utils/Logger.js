@@ -51,7 +51,7 @@ class LoggerInstance {
     logRequest(req) {
         const { method, url, headers, body } = req;
 
-        const bodyCopy = Object.assign({}, body)
+        const bodyCopy = Object.assign({}, body);
 
         this.info(`Incoming request`);
         console.log(
@@ -65,7 +65,6 @@ class LoggerInstance {
         }
 
         if (bodyCopy && Object.keys(bodyCopy).length > 0) {
-
             for (let key of [
                 'password',
                 'password_hash',

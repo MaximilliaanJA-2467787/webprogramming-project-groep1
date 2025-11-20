@@ -24,7 +24,7 @@ const walletController = {
             const transactions = await transactionModel.getTransactionByUserId(userId, {
                 status: 'completed',
                 type: 'purchase',
-                orderDir: 'DESC'
+                orderDir: 'DESC',
             });
 
             if (!transactions) {
@@ -32,42 +32,44 @@ const walletController = {
                 return error(res, 404);
             }
 
-        const categorySums = {};
-        for (const transaction of transactions) {
-            const categorie = transaction.item_category || 'Overige';
-            const tokens = Number(transaction.amount_tokens) || 0;
-            
-            // Als categorie nog niet bestaat, maak deze aan
-            if (!categorySums[categorie]) {
-                categorySums[categorie] = {
-                    name: categorie,
-                    totalTokens: 0,
-                    numberOfPurchases: 0
-                };
+            const categorySums = {};
+            for (const transaction of transactions) {
+                const categorie = transaction.item_category || 'Overige';
+                const tokens = Number(transaction.amount_tokens) || 0;
+
+                // Als categorie nog niet bestaat, maak deze aan
+                if (!categorySums[categorie]) {
+                    categorySums[categorie] = {
+                        name: categorie,
+                        totalTokens: 0,
+                        numberOfPurchases: 0,
+                    };
+                }
+
+                categorySums[categorie].totalTokens += tokens;
+                categorySums[categorie].numberOfPurchases += 1;
             }
-            
-            categorySums[categorie].totalTokens += tokens;
-            categorySums[categorie].numberOfPurchases += 1;
-        }
-    
-        const categories = Object.values(categorySums);
-        
-        const chartData = {
-            labels: categories.map(cat => cat.name),
-            datasets: [{
-                data: categories.map(cat => cat.totalTokens),
-                backgroundColor: [
-                    '#FF6384', // Roze
-                    '#36A2EB', // Blauw
-                    '#FFCE56', // Geel
-                    '#4BC0C0', // Turquoise
-                    '#9966FF', // Paars
-                    '#FF9F40', // Oranje
-                    '#E74C3C', // Rood
-                    '#95A5A6'  // Grijs
-                ]
-            }]
-        };
+
+            const categories = Object.values(categorySums);
+
+            const chartData = {
+                labels: categories.map((cat) => cat.name),
+                datasets: [
+                    {
+                        data: categories.map((cat) => cat.totalTokens),
+                        backgroundColor: [
+                            '#FF6384', // Roze
+                            '#36A2EB', // Blauw
+                            '#FFCE56', // Geel
+                            '#4BC0C0', // Turquoise
+                            '#9966FF', // Paars
+                            '#FF9F40', // Oranje
+                            '#E74C3C', // Rood
+                            '#95A5A6', // Grijs
+                        ],
+                    },
+                ],
+            };
 
             const { success, error } = req.query;
             return res.render('pages/user/wallet', {
@@ -82,7 +84,7 @@ const walletController = {
                 error: error ? decodeURIComponent(error) : null,
             });
         } catch (err) {
-            Logger.error('Show wallet: error in catch')
+            Logger.error('Show wallet: error in catch');
             return error(res, 404);
         }
     },

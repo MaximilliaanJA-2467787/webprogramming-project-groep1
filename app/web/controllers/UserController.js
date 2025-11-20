@@ -98,7 +98,6 @@ const UserController = {
         }
     },
 
-
     // POST /profile/change-password - Change password
     changePassword: async (req, res) => {
         try {

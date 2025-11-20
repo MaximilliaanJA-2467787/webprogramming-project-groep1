@@ -70,10 +70,10 @@ const Pages = {
     },
 
     analytics: {
-    name: 'Analytics',
-    layout: 'layouts/default-layout',
-    view: 'pages/user/analytics',
-    route: '/analytics',
+        name: 'Analytics',
+        layout: 'layouts/default-layout',
+        view: 'pages/user/analytics',
+        route: '/analytics',
     },
 
     wallet: {

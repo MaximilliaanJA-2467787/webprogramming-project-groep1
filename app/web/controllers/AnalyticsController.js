@@ -17,7 +17,7 @@ const AnalyticsController = {
 
             const wallet = await walletModel.getByUserId(userId);
             if (!wallet) {
-                Logger.error('Error in Analytics show: wallet not found')
+                Logger.error('Error in Analytics show: wallet not found');
                 return error(res, 404);
             }
 
@@ -25,25 +25,27 @@ const AnalyticsController = {
             const period = req.query.period || 'month';
             const { startDate, endDate, groupBy } = getDateRange(period);
 
-            Logger.debug(`Period: ${period}, Start: ${startDate}, End: ${endDate}, GroupBy: ${groupBy}`);
+            Logger.debug(
+                `Period: ${period}, Start: ${startDate}, End: ${endDate}, GroupBy: ${groupBy}`
+            );
 
-            // get all needed transactions 
+            // get all needed transactions
             const transactions = await transactionModel.getTransactionByUserId(userId, {
                 status: 'completed',
                 type: 'purchase',
                 since: startDate,
                 until: endDate,
                 orderBy: 'timestamp',
-                orderDir: 'ASC'
+                orderDir: 'ASC',
             });
 
             //aggregate data for charts
             const aggregatedData = aggregateTransactions(transactions, groupBy, startDate, endDate);
             Logger.info('Aggregated time data successfully');
-            
+
             const categoryData = aggregateByCategory(transactions);
             Logger.info('Aggregated category data successfully');
-            
+
             const vendorData = aggregateByVendor(transactions);
             Logger.info('Aggregated vendor data successfully');
 
@@ -66,7 +68,7 @@ const AnalyticsController = {
             Logger.error('Analytics show error');
             return error(res, 500);
         }
-    } 
+    },
 };
 
 /**
@@ -79,19 +81,19 @@ function getDateRange(period) {
     endDate = now.toISOString();
 
     switch (period) {
-        case ('week'):
+        case 'week':
             startDate = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000).toISOString();
             groupBy = 'day';
             break;
-        case ('month'):
+        case 'month':
             startDate = new Date(now.getFullYear(), now.getMonth(), 1).toISOString();
             groupBy = 'day';
             break;
-        case ('year'):
+        case 'year':
             startDate = new Date(now.getFullYear(), 0, 1).toISOString();
             groupBy = 'month';
             break;
-        case ('alltime'):
+        case 'alltime':
             startDate = new Date(0).toISOString();
             groupBy = 'month';
             break;
@@ -102,7 +104,7 @@ function getDateRange(period) {
     }
 
     return { startDate, endDate, groupBy };
-};
+}
 
 /**
  * Helper: Aggregate transactions by time period
@@ -112,7 +114,6 @@ function aggregateTransactions(transactions, groupBy, startDate, endDate) {
     initializePeriods(dataMap, groupBy, startDate, endDate);
     addTransactionsToPeriods(dataMap, transactions, groupBy);
     return createChartData(dataMap, groupBy);
-
 }
 
 /**
@@ -131,7 +132,7 @@ function initializePeriods(dataMap, groupBy, startDate, endDate) {
         for (let date = new Date(start); date <= end; date.setMonth(date.getMonth() + 1)) {
             const month = String(date.getMonth() + 1).padStart(2, '0');
             const key = `${date.getFullYear()}-${month}`;
-            dataMap.set(key, 0)
+            dataMap.set(key, 0);
         }
     }
 }
@@ -140,7 +141,7 @@ function initializePeriods(dataMap, groupBy, startDate, endDate) {
  * add all transaction per period
  */
 function addTransactionsToPeriods(dataMap, transactions, groupBy) {
-    transactions.forEach(transaction => {
+    transactions.forEach((transaction) => {
         const date = new Date(transaction.timestamp);
         const key = getPeriodKey(date, groupBy);
 
@@ -177,14 +178,16 @@ function createChartData(dataMap, groupBy) {
 
     return {
         labels: labels,
-        datasets: [{
-            label: 'Spending (tokens)',
-            data: values,
-            borderColor: '#007bff',
-            backgroundColor: 'rgba(0, 123, 255, 0.1)',
-            tension: 0.4,
-            fill: true
-        }]
+        datasets: [
+            {
+                label: 'Spending (tokens)',
+                data: values,
+                borderColor: '#007bff',
+                backgroundColor: 'rgba(0, 123, 255, 0.1)',
+                tension: 0.4,
+                fill: true,
+            },
+        ],
     };
 }
 
@@ -193,15 +196,15 @@ function createChartData(dataMap, groupBy) {
  */
 function formatLabel(key, groupBy) {
     if (groupBy === 'day') {
-        return new Date(key).toLocaleDateString('en-US', { 
-            month: 'short', 
-            day: 'numeric' 
+        return new Date(key).toLocaleDateString('en-US', {
+            month: 'short',
+            day: 'numeric',
         });
     } else {
         const [year, month] = key.split('-');
-        return new Date(year, month - 1).toLocaleDateString('en-US', { 
-            month: 'short', 
-            year: 'numeric' 
+        return new Date(year, month - 1).toLocaleDateString('en-US', {
+            month: 'short',
+            year: 'numeric',
         });
     }
 }
@@ -212,7 +215,7 @@ function formatLabel(key, groupBy) {
 function aggregateByCategory(transactions) {
     const categorieMap = new Map();
 
-    transactions.forEach(transaction => {
+    transactions.forEach((transaction) => {
         const categorie = transaction.item_category || 'Other';
         const current = categorieMap.get(categorie) || 0;
         categorieMap.set(categorie, current + Number(transaction.amount_tokens));
@@ -220,13 +223,21 @@ function aggregateByCategory(transactions) {
 
     return {
         labels: Array.from(categorieMap.keys()),
-        datasets: [{
-            data: Array.from(categorieMap.values()),
-            backgroundColor: [
-                '#FF6384', '#36A2EB', '#FFCE56', '#4BC0C0', 
-                '#9966FF', '#FF9F40', '#E74C3C', '#95A5A6'
-            ]
-        }]
+        datasets: [
+            {
+                data: Array.from(categorieMap.values()),
+                backgroundColor: [
+                    '#FF6384',
+                    '#36A2EB',
+                    '#FFCE56',
+                    '#4BC0C0',
+                    '#9966FF',
+                    '#FF9F40',
+                    '#E74C3C',
+                    '#95A5A6',
+                ],
+            },
+        ],
     };
 }
 
@@ -235,8 +246,8 @@ function aggregateByCategory(transactions) {
  */
 function aggregateByVendor(transactions) {
     const vendorMap = new Map();
-    
-    transactions.forEach(transaction => {
+
+    transactions.forEach((transaction) => {
         const vendor = transaction.vendor_name || 'Unknown';
         const current = vendorMap.get(vendor) || 0;
         vendorMap.set(vendor, current + Number(transaction.amount_tokens));
@@ -248,11 +259,13 @@ function aggregateByVendor(transactions) {
 
     return {
         labels: sorted.map(([vendor]) => vendor),
-        datasets: [{
-            label: 'Spending by Vendor',
-            data: sorted.map(([, amount]) => amount),
-            backgroundColor: '#36A2EB'
-        }]
+        datasets: [
+            {
+                label: 'Spending by Vendor',
+                data: sorted.map(([, amount]) => amount),
+                backgroundColor: '#36A2EB',
+            },
+        ],
     };
 }
 
@@ -265,18 +278,18 @@ function calculateStats(transactions) {
             total: 0,
             average: 0,
             highest: 0,
-            count: 0
+            count: 0,
         };
     }
 
-    const amounts = transactions.map(transaction => Number(transaction.amount_tokens));
+    const amounts = transactions.map((transaction) => Number(transaction.amount_tokens));
     const total = amounts.reduce((sum, amt) => sum + amt, 0);
 
     return {
         total,
         average: (total / transactions.length).toFixed(2),
         highest: Math.max(...amounts),
-        count: transactions.length
+        count: transactions.length,
     };
 }
 
