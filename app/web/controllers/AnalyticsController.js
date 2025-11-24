@@ -21,9 +21,26 @@ const AnalyticsController = {
                 return error(res, 404);
             }
 
-            // get period, start- and endDate and groupBy
+            // get period and offset
             const period = req.query.period || 'month';
-            const { startDate, endDate, groupBy } = getDateRange(period);
+            const offset = parseInt(req.query.offset || '0', 10);
+
+            let firstTransactionDate = null;
+            if (period === 'alltime') {
+                const firstTransaction = await transactionModel.getTransactionByUserId(userId, {
+                    status: 'completed',
+                    type: 'purchase',
+                    orderBy: 'timestamp',
+                    orderDir: 'ASC',
+                    limit: 1
+                });
+                if (firstTransaction && firstTransaction.length > 0) {
+                firstTransactionDate = firstTransaction[0].timestamp;
+                }
+            }
+
+            // Calculate date range based on period and offset
+            const { startDate, endDate, groupBy, displayName, canGoNext } = getDateRange(period, offset, firstTransactionDate);
 
             Logger.debug(
                 `Period: ${period}, Start: ${startDate}, End: ${endDate}, GroupBy: ${groupBy}`
@@ -38,19 +55,20 @@ const AnalyticsController = {
                 orderBy: 'timestamp',
                 orderDir: 'ASC',
             });
+            Logger.debug('got all needed transactions')
 
             //aggregate data for charts
             const aggregatedData = aggregateTransactions(transactions, groupBy, startDate, endDate);
-            Logger.info('Aggregated time data successfully');
+            Logger.debug('Aggregated time data successfully');
 
             const categoryData = aggregateByCategory(transactions);
-            Logger.info('Aggregated category data successfully');
+            Logger.debug('Aggregated category data successfully');
 
             const vendorData = aggregateByVendor(transactions);
-            Logger.info('Aggregated vendor data successfully');
+            Logger.debug('Aggregated vendor data successfully');
 
             const stats = calculateStats(transactions);
-            Logger.info('Calculated stats successfully');
+            Logger.debug('Calculated stats successfully');
 
             return res.render('pages/user/analytics', {
                 layout: 'layouts/default-layout',
@@ -58,12 +76,16 @@ const AnalyticsController = {
                 user: req.session.user,
                 wallet,
                 period,
+                offset,
+                displayName,
+                canGoNext,
                 stats,
                 chartData: JSON.stringify(aggregatedData),
                 categoryData: JSON.stringify(categoryData),
                 vendorData: JSON.stringify(vendorData),
                 transactions,
             });
+
         } catch (err) {
             Logger.error('Analytics show error');
             return error(res, 500);
@@ -74,36 +96,116 @@ const AnalyticsController = {
 /**
  * Helper: Get date range and grouping based on period
  */
-function getDateRange(period) {
+function getDateRange(period, offset = 0, firstTransactionDate = null) {
     const now = new Date();
-    let startDate, endDate, groupBy;
+    let startDate, endDate, groupBy, displayName, canGoNext;
 
-    endDate = now.toISOString();
+    canGoNext = offset < 0;
 
     switch (period) {
         case 'week':
-            startDate = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000).toISOString();
             groupBy = 'day';
+
+            // get current monday
+            const currentMonday = new Date(now);
+            const dayOfWeek = currentMonday.getDay();
+            const diff = dayOfWeek === 0 ? -5 : 1 - dayOfWeek;
+            currentMonday.setDate(currentMonday.getDate() + diff);
+            currentMonday.setHours(0, 0, 0, 0);
+
+            // apply offset
+            const targetMonday = new Date(currentMonday);
+            targetMonday.setDate(targetMonday.getDate() + (offset * 7));
+
+            // set start/end dates
+            startDate = new Date(targetMonday);
+            startDate.setHours(0, 0, 0, 0);
+            endDate = new Date(targetMonday);
+            endDate.setDate(endDate.getDate() + 6);
+            endDate.setHours(23, 59, 59, 999);
+
+            // Format display name
+            const weekStart = startDate.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+            const weekEnd = endDate.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+            if (offset === 0) {
+                displayName = `This Week (${weekStart} - ${weekEnd})`;
+            } else if (offset === -1) {
+                displayName = `Last Week (${weekStart} - ${weekEnd})`;
+            } else {
+                displayName = `Week of ${weekStart}`;
+            }
             break;
+
         case 'month':
-            startDate = new Date(now.getFullYear(), now.getMonth(), 1).toISOString();
+            const targetDate = new Date(now.getFullYear(), now.getMonth() + offset, 1);
+
+            startDate = new Date(targetDate.getFullYear(), targetDate.getMonth(), 1);
+            startDate.setHours(0, 0, 0, 0);
+            endDate = new Date(targetDate.getFullYear(), targetDate.getMonth() + 1, 0);
+            endDate.setHours(23, 59, 59, 999);
+            
             groupBy = 'day';
+
+            // Format display name
+            const monthName = targetDate.toLocaleDateString('en-US', { month: 'long', year: 'numeric' });
+            if (offset === 0) {
+                displayName = `This Month (${monthName})`;
+            } else if (offset === -1) {
+                displayName = `Last Month (${monthName})`;
+            } else {
+                displayName = monthName;
+            }
             break;
+
         case 'year':
-            startDate = new Date(now.getFullYear(), 0, 1).toISOString();
+            const targetYear = now.getFullYear() + offset;
+
+            startDate = new Date(targetYear, 0, 1);
+            startDate.setHours(0, 0, 0, 0);
+            endDate = new Date(targetYear, 11, 31);
+            endDate.setHours(23, 59, 59, 999);
             groupBy = 'month';
+
+            if (offset === 0) {
+                displayName = `This Year (${targetYear})`;
+            } else if (offset === -1) {
+                displayName = `Last Year (${targetYear})`;
+            } else {
+                displayName = `Year ${targetYear}`;
+            }
             break;
+
         case 'alltime':
-            startDate = new Date(0).toISOString();
-            groupBy = 'month';
-            break;
         default:
-            startDate = new Date(now.getFullYear(), now.getMonth(), 1).toISOString();
-            groupBy = 'day';
+            if (firstTransactionDate) {
+                startDate = new Date(firstTransactionDate);
+                startDate.setHours(0, 0, 0, 0);
+
+                const firstYear = startDate.getFullYear();
+                const currentYear = now.getFullYear();
+                displayName = firstYear === currentYear 
+                    ? 'All Time (since this year)' 
+                    : `All Time (since ${firstYear})`;
+            } else {
+                startDate = new Date(0);
+                startDate.setHours(0, 0, 0, 0);
+                displayName = 'All time';
+            }
+            endDate = new Date();
+            endDate.setHours(23, 59, 59, 999);
+
+            groupBy = 'month';
+            canGoNext = false;
             break;
     }
 
-    return { startDate, endDate, groupBy };
+    return { 
+        startDate: startDate.toISOString(), 
+        endDate: endDate.toISOString(), 
+        groupBy,
+        displayName,
+        canGoNext
+    };
 }
 
 /**
@@ -124,14 +226,14 @@ function initializePeriods(dataMap, groupBy, startDate, endDate) {
     const end = new Date(endDate);
 
     if (groupBy === 'day') {
-        for (let date = new Date(start); date <= end; date.setDate(date.getDate() + 1)) {
-            const key = date.toISOString().split('T')[0];
+        for (let d = new Date(start); d <= end; d = new Date(d.getTime() + 24 * 60 * 60 * 1000)) {
+            const key = d.toISOString().split('T')[0];
             dataMap.set(key, 0);
         }
     } else if (groupBy === 'month') {
-        for (let date = new Date(start); date <= end; date.setMonth(date.getMonth() + 1)) {
-            const month = String(date.getMonth() + 1).padStart(2, '0');
-            const key = `${date.getFullYear()}-${month}`;
+        for (let d = new Date(start); d <= end; d = new Date(d.getFullYear(), d.getMonth() + 1, 1)) {
+            const month = String(d.getMonth() + 1).padStart(2, '0');
+            const key = `${d.getFullYear()}-${month}`;
             dataMap.set(key, 0);
         }
     }
@@ -177,7 +279,8 @@ function createChartData(dataMap, groupBy) {
     });
 
     return {
-        labels: labels,
+        labels: labels,              // mooie dingen zoals "Jan 3"
+        dates: Array.from(dataMap.keys()), // ISO datums zoals "2025-01-03"
         datasets: [
             {
                 label: 'Spending (tokens)',
@@ -213,19 +316,19 @@ function formatLabel(key, groupBy) {
  * Helper: Aggregate by category
  */
 function aggregateByCategory(transactions) {
-    const categorieMap = new Map();
+    const categoryMap = new Map();
 
     transactions.forEach((transaction) => {
-        const categorie = transaction.item_category || 'Other';
-        const current = categorieMap.get(categorie) || 0;
-        categorieMap.set(categorie, current + Number(transaction.amount_tokens));
+        const category = transaction.item_category || 'Other';
+        const current = categoryMap.get(category) || 0;
+        categoryMap.set(category, current + Number(transaction.amount_tokens));
     });
 
     return {
-        labels: Array.from(categorieMap.keys()),
+        labels: Array.from(categoryMap.keys()),
         datasets: [
             {
-                data: Array.from(categorieMap.values()),
+                data: Array.from(categoryMap.values()),
                 backgroundColor: [
                     '#FF6384',
                     '#36A2EB',
