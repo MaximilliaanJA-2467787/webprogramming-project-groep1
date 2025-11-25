@@ -13,7 +13,7 @@ const AnalyticsController = {
             if (!userId) {
                 return res.redirect('auth/login?redirect=/analytics');
             }
-            Logger.debug(`Analytics requested for user ${userId}`);
+            // Logger.debug(`Analytics requested for user ${userId}`);
 
             const wallet = await walletModel.getByUserId(userId);
             if (!wallet) {
@@ -35,16 +35,16 @@ const AnalyticsController = {
                     limit: 1
                 });
                 if (firstTransaction && firstTransaction.length > 0) {
-                firstTransactionDate = firstTransaction[0].timestamp;
+                    firstTransactionDate = firstTransaction[0].timestamp;
                 }
             }
 
             // Calculate date range based on period and offset
             const { startDate, endDate, groupBy, displayName, canGoNext } = getDateRange(period, offset, firstTransactionDate);
 
-            Logger.debug(
+            /** Logger.debug(
                 `Period: ${period}, Start: ${startDate}, End: ${endDate}, GroupBy: ${groupBy}`
-            );
+            ); */
 
             // get all needed transactions
             const transactions = await transactionModel.getTransactionByUserId(userId, {
@@ -55,20 +55,20 @@ const AnalyticsController = {
                 orderBy: 'timestamp',
                 orderDir: 'ASC',
             });
-            Logger.debug('got all needed transactions')
+            // Logger.debug('got all needed transactions')
 
             //aggregate data for charts
             const aggregatedData = aggregateTransactions(transactions, groupBy, startDate, endDate);
-            Logger.debug('Aggregated time data successfully');
+            // Logger.debug('Aggregated time data successfully');
 
             const categoryData = aggregateByCategory(transactions);
-            Logger.debug('Aggregated category data successfully');
+            // Logger.debug('Aggregated category data successfully');
 
             const vendorData = aggregateByVendor(transactions);
-            Logger.debug('Aggregated vendor data successfully');
+            // Logger.debug('Aggregated vendor data successfully');
 
             const stats = calculateStats(transactions);
-            Logger.debug('Calculated stats successfully');
+            // Logger.debug('Calculated stats successfully');
 
             return res.render('pages/user/analytics', {
                 layout: 'layouts/default-layout',
@@ -279,8 +279,8 @@ function createChartData(dataMap, groupBy) {
     });
 
     return {
-        labels: labels,              // mooie dingen zoals "Jan 3"
-        dates: Array.from(dataMap.keys()), // ISO datums zoals "2025-01-03"
+        labels: labels,
+        dates: Array.from(dataMap.keys()),
         datasets: [
             {
                 label: 'Spending (tokens)',

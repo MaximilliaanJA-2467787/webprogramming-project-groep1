@@ -21,7 +21,7 @@ const colorPalette = {
         end: 'rgba(0, 123, 255, 0.2)'
     },
     categories: [
-        '#007bff', '#28a745', '#ffc107', '#dc3545', '#6f42c1',
+        '#28a745', '#ffc107', '#dc3545', '#6f42c1',
         '#fd7e14', '#20c997', '#6610f2', '#e83e8c', '#17a2b8'
     ]
 };
@@ -98,7 +98,15 @@ function showDayBreakdown(date, transactions) {
     }
 
     const bsModal = bootstrap.Modal.getInstance(modal) || new bootstrap.Modal(modal);
-    bsModal.show();
+
+    window.addEventListener('keydown', function (event) {
+        if (event.key === 'Escape') {
+            bsModal.hide();
+            document.body.classList.remove('modal-open');
+            const backdrop = document.querySelector('.modal-backdrop');
+            if (backdrop) backdrop.remove();
+        }
+    });
 
     modal.addEventListener('hidden.bs.modal', () => {
         document.body.classList.remove('modal-open');
@@ -159,6 +167,18 @@ function showMonthBreakdown(month, transactions) {
             `).join('')}
         </div>
     `;
+
+    let modal = document.getElementById('dayBreakdownModal');
+    const bsModal = bootstrap.Modal.getInstance(modal) || new bootstrap.Modal(modal);
+
+    window.addEventListener('keydown', function (event) {
+        if (event.key === 'Escape') {
+            bsModal.hide();
+            document.body.classList.remove('modal-open');
+            const backdrop = document.querySelector('.modal-backdrop');
+            if (backdrop) backdrop.remove();
+        }
+    });
 }
 
 
@@ -166,7 +186,6 @@ function showMonthBreakdown(month, transactions) {
  * Initialize all charts
  */
 function initializeCharts(spendingData, categoryData, vendorData) {
-    // Spending Over Time Chart - Verbeterde Bar Chart met klikbare bars
     const spendingCtx = document.getElementById('spendingChart');
     if (spendingCtx && spendingData) {
         // Gradient maken
@@ -304,12 +323,12 @@ function initializeCharts(spendingData, categoryData, vendorData) {
                         const bsModal = new bootstrap.Modal(modal);
                         bsModal.show();
 
-                        // Check if it's a month format (YYYY-MM or "Month YYYY")
+                        // Check if it's a month format
                         const monthISORegex = /^\d{4}-\d{2}$/; // Matches "2025-10"
                         const monthLabelRegex = /^[A-Za-z]{3,9} \d{4}$/; // Matches "Jan 2025"
                         
                         if (monthISORegex.test(date)) {
-                            // It's a month in ISO format (e.g., "2025-10")
+                            // It's a month in ISO format
                             const [year, month] = date.split("-");
                             const monthName = new Date(year, month - 1).toLocaleDateString('en-US', { month: 'long', year: 'numeric' });
 
@@ -324,7 +343,7 @@ function initializeCharts(spendingData, categoryData, vendorData) {
                                 showMonthBreakdown(monthName, []);
                             }
                         } else if (monthLabelRegex.test(date)) {
-                            // It's a month label
+                            // It's a month
                             const [monthName, year] = date.split(" ");
                             const month = (new Date(`${monthName} 1, ${year}`).getMonth() + 1).toString().padStart(2, "0");
 
