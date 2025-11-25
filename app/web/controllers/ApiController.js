@@ -52,7 +52,7 @@ const ApiController = {
 
                 const startDate = new Date(date);
                 startDate.setHours(0, 0, 0, 0);
-                
+
                 const endDate = new Date(date);
                 endDate.setHours(23, 59, 59, 999);
 
@@ -80,7 +80,7 @@ const ApiController = {
 
                 const year = req.query.year;
                 const month = req.query.month;
-                
+
                 if (!year || !month) {
                     return res.status(400).json({ error: 'Year and month parameters required' });
                 }
@@ -88,7 +88,7 @@ const ApiController = {
                 // Create start date (first day of month at 00:00:00)
                 const startDate = new Date(parseInt(year), parseInt(month) - 1, 1);
                 startDate.setHours(0, 0, 0, 0);
-                
+
                 // Create end date (last day of month at 23:59:59)
                 const endDate = new Date(parseInt(year), parseInt(month), 0);
                 endDate.setHours(23, 59, 59, 999);

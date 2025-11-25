@@ -32,7 +32,7 @@ const AnalyticsController = {
                     type: 'purchase',
                     orderBy: 'timestamp',
                     orderDir: 'ASC',
-                    limit: 1
+                    limit: 1,
                 });
                 if (firstTransaction && firstTransaction.length > 0) {
                     firstTransactionDate = firstTransaction[0].timestamp;
@@ -40,7 +40,11 @@ const AnalyticsController = {
             }
 
             // Calculate date range based on period and offset
-            const { startDate, endDate, groupBy, displayName, canGoNext } = getDateRange(period, offset, firstTransactionDate);
+            const { startDate, endDate, groupBy, displayName, canGoNext } = getDateRange(
+                period,
+                offset,
+                firstTransactionDate
+            );
 
             /** Logger.debug(
                 `Period: ${period}, Start: ${startDate}, End: ${endDate}, GroupBy: ${groupBy}`
@@ -85,7 +89,6 @@ const AnalyticsController = {
                 vendorData: JSON.stringify(vendorData),
                 transactions,
             });
-
         } catch (err) {
             Logger.error('Analytics show error');
             return error(res, 500);
@@ -115,7 +118,7 @@ function getDateRange(period, offset = 0, firstTransactionDate = null) {
 
             // apply offset
             const targetMonday = new Date(currentMonday);
-            targetMonday.setDate(targetMonday.getDate() + (offset * 7));
+            targetMonday.setDate(targetMonday.getDate() + offset * 7);
 
             // set start/end dates
             startDate = new Date(targetMonday);
@@ -125,7 +128,10 @@ function getDateRange(period, offset = 0, firstTransactionDate = null) {
             endDate.setHours(23, 59, 59, 999);
 
             // Format display name
-            const weekStart = startDate.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+            const weekStart = startDate.toLocaleDateString('en-US', {
+                month: 'short',
+                day: 'numeric',
+            });
             const weekEnd = endDate.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
             if (offset === 0) {
                 displayName = `This Week (${weekStart} - ${weekEnd})`;
@@ -143,11 +149,14 @@ function getDateRange(period, offset = 0, firstTransactionDate = null) {
             startDate.setHours(0, 0, 0, 0);
             endDate = new Date(targetDate.getFullYear(), targetDate.getMonth() + 1, 0);
             endDate.setHours(23, 59, 59, 999);
-            
+
             groupBy = 'day';
 
             // Format display name
-            const monthName = targetDate.toLocaleDateString('en-US', { month: 'long', year: 'numeric' });
+            const monthName = targetDate.toLocaleDateString('en-US', {
+                month: 'long',
+                year: 'numeric',
+            });
             if (offset === 0) {
                 displayName = `This Month (${monthName})`;
             } else if (offset === -1) {
@@ -183,9 +192,10 @@ function getDateRange(period, offset = 0, firstTransactionDate = null) {
 
                 const firstYear = startDate.getFullYear();
                 const currentYear = now.getFullYear();
-                displayName = firstYear === currentYear 
-                    ? 'All Time (since this year)' 
-                    : `All Time (since ${firstYear})`;
+                displayName =
+                    firstYear === currentYear
+                        ? 'All Time (since this year)'
+                        : `All Time (since ${firstYear})`;
             } else {
                 startDate = new Date(0);
                 startDate.setHours(0, 0, 0, 0);
@@ -199,12 +209,12 @@ function getDateRange(period, offset = 0, firstTransactionDate = null) {
             break;
     }
 
-    return { 
-        startDate: startDate.toISOString(), 
-        endDate: endDate.toISOString(), 
+    return {
+        startDate: startDate.toISOString(),
+        endDate: endDate.toISOString(),
         groupBy,
         displayName,
-        canGoNext
+        canGoNext,
     };
 }
 
@@ -231,7 +241,11 @@ function initializePeriods(dataMap, groupBy, startDate, endDate) {
             dataMap.set(key, 0);
         }
     } else if (groupBy === 'month') {
-        for (let d = new Date(start); d <= end; d = new Date(d.getFullYear(), d.getMonth() + 1, 1)) {
+        for (
+            let d = new Date(start);
+            d <= end;
+            d = new Date(d.getFullYear(), d.getMonth() + 1, 1)
+        ) {
             const month = String(d.getMonth() + 1).padStart(2, '0');
             const key = `${d.getFullYear()}-${month}`;
             dataMap.set(key, 0);
