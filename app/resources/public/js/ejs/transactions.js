@@ -1,7 +1,7 @@
 async function showTransactionDetails(transactionId) {
     const modal = new bootstrap.Modal(document.getElementById('transactionModal'));
     const detailsEl = document.getElementById('transactionDetails');
-    
+
     // Show loading spinner
     detailsEl.innerHTML = `
         <div class="text-center py-4">
@@ -10,18 +10,18 @@ async function showTransactionDetails(transactionId) {
             </div>
         </div>
     `;
-    
+
     modal.show();
-    
+
     try {
         const response = await fetch(`/api/transactions/${transactionId}`);
-        
+
         if (!response.ok) {
             throw new Error('Failed to fetch transaction details');
         }
-        
+
         const data = await response.json();
-        
+
         detailsEl.innerHTML = `
             <div class="row g-3">
                 <div class="col-12">
@@ -50,46 +50,61 @@ async function showTransactionDetails(transactionId) {
                 
                 <div class="col-6">
                     <small class="text-muted d-block">Date & Time</small>
-                    <strong>${new Date(data.timestamp).toLocaleString('en-GB', { 
+                    <strong>${new Date(data.timestamp).toLocaleString('en-GB', {
                         day: '2-digit',
-                        month: '2-digit', 
+                        month: '2-digit',
                         year: 'numeric',
-                        hour: '2-digit', 
-                        minute: '2-digit'
+                        hour: '2-digit',
+                        minute: '2-digit',
                     })}</strong>
                 </div>
                 
-                ${data.item_name ? `
+                ${
+                    data.item_name
+                        ? `
                     <div class="col-12">
                         <small class="text-muted d-block">Item</small>
                         <strong>${data.item_name}</strong>
                         ${data.item_category ? `<br><small class="text-muted"><i class="bi bi-tag me-1"></i>${data.item_category}</small>` : ''}
                     </div>
-                ` : ''}
+                `
+                        : ''
+                }
                 
-                ${data.vendor_name ? `
+                ${
+                    data.vendor_name
+                        ? `
                     <div class="col-12">
                         <small class="text-muted d-block">Vendor</small>
                         <strong><i class="bi bi-shop me-1"></i>${data.vendor_name}</strong>
                     </div>
-                ` : ''}
+                `
+                        : ''
+                }
                 
-                ${data.location || data.vendor_location ? `
+                ${
+                    data.location || data.vendor_location
+                        ? `
                     <div class="col-12">
                         <small class="text-muted d-block">Location</small>
                         <strong><i class="bi bi-geo-alt me-1"></i>${data.location || data.vendor_location}</strong>
                     </div>
-                ` : ''}
+                `
+                        : ''
+                }
                 
-                ${data.description ? `
+                ${
+                    data.description
+                        ? `
                     <div class="col-12">
                         <small class="text-muted d-block">Description</small>
                         <p class="mb-0">${data.description}</p>
                     </div>
-                ` : ''}
+                `
+                        : ''
+                }
             </div>
         `;
-        
     } catch (err) {
         console.error('Error loading transaction details:', err);
         detailsEl.innerHTML = `

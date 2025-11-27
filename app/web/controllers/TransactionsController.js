@@ -58,30 +58,41 @@ const TransactionsController = {
             // apply search filters
             if (filters.search) {
                 const searchLower = filters.search.toLowerCase();
-                transactions = transactions.filter(transaction =>
-                    (transaction.item_name && transaction.item_name.toLowerCase().includes(searchLower)) ||
-                    (transaction.vendor_name && transaction.vendor_name.toLowerCase().includes(searchLower)) ||
-                    (transaction.location && transaction.location.toLowerCase().includes(searchLower))
+                transactions = transactions.filter(
+                    (transaction) =>
+                        (transaction.item_name &&
+                            transaction.item_name.toLowerCase().includes(searchLower)) ||
+                        (transaction.vendor_name &&
+                            transaction.vendor_name.toLowerCase().includes(searchLower)) ||
+                        (transaction.location &&
+                            transaction.location.toLowerCase().includes(searchLower))
                 );
             }
 
-            const totalQueryOptions = {...queryOptions};
+            const totalQueryOptions = { ...queryOptions };
             delete totalQueryOptions.limit;
             delete totalQueryOptions.offset;
 
-            let allTransactions = await transactionModel.getTransactionByUserId(userId, totalQueryOptions);
+            let allTransactions = await transactionModel.getTransactionByUserId(
+                userId,
+                totalQueryOptions
+            );
 
             if (filters.search) {
                 const searchLower = filters.search.toLowerCase();
-                allTransactions = allTransactions.filter(transaction =>
-                    (transaction.item_name && transaction.item_name.toLowerCase().includes(searchLower)) ||
-                    (transaction.vendor_name && transaction.vendor_name.toLowerCase().includes(searchLower)) ||
-                    (transaction.location && transaction.location.toLowerCase().includes(searchLower))
+                allTransactions = allTransactions.filter(
+                    (transaction) =>
+                        (transaction.item_name &&
+                            transaction.item_name.toLowerCase().includes(searchLower)) ||
+                        (transaction.vendor_name &&
+                            transaction.vendor_name.toLowerCase().includes(searchLower)) ||
+                        (transaction.location &&
+                            transaction.location.toLowerCase().includes(searchLower))
                 );
             }
 
             const total = allTransactions.length;
-            const totalPages = Math.ceil(total/limit);
+            const totalPages = Math.ceil(total / limit);
 
             // calculate stats
             const stats = calculateTransactionStats(allTransactions, wallet.id);
@@ -111,7 +122,7 @@ const TransactionsController = {
     },
 
     /**
-     * GET /api/transactions/:id - get single transaction details 
+     * GET /api/transactions/:id - get single transaction details
      */
     getTransactionDetails: async (req, res) => {
         try {
@@ -129,13 +140,19 @@ const TransactionsController = {
             }
 
             const wallet = await walletModel.getByUserId(userId);
-            if (!wallet || (transaction.walletSource_id !== wallet.id && transaction.walletDestination_id !== wallet.id)) {
+            if (
+                !wallet ||
+                (transaction.walletSource_id !== wallet.id &&
+                    transaction.walletDestination_id !== wallet.id)
+            ) {
                 Logger.error('Error in transactions getTransactionDetails: userId not found');
                 return error(res, 403);
             }
 
             // get extra details
-            const vendor = transaction.vendor_id ? await vendorModel.getById(transaction.vendor_id) : null;
+            const vendor = transaction.vendor_id
+                ? await vendorModel.getById(transaction.vendor_id)
+                : null;
             const item = transaction.item_id ? await ItemModel.getById(transaction.item_id) : null;
 
             return res.json({
@@ -145,7 +162,7 @@ const TransactionsController = {
             });
         } catch (err) {
             Logger.error('Get transaction details error:');
-            return error(res, 500)
+            return error(res, 500);
         }
     },
 
@@ -166,10 +183,19 @@ const TransactionsController = {
             });
 
             // Create CSV content
-            const headers = ['Date', 'Time', 'Type', 'Description', 'Vendor', 'Location', 'Amount', 'Status'];
+            const headers = [
+                'Date',
+                'Time',
+                'Type',
+                'Description',
+                'Vendor',
+                'Location',
+                'Amount',
+                'Status',
+            ];
             const csvRows = [headers.join(',')];
 
-            transactions.forEach(tx => {
+            transactions.forEach((tx) => {
                 const date = new Date(tx.timestamp);
                 const row = [
                     date.toLocaleDateString('en-GB'),
@@ -188,15 +214,18 @@ const TransactionsController = {
 
             // Set headers for download
             res.setHeader('Content-Type', 'text/csv; charset=utf-8');
-            res.setHeader('Content-Disposition', `attachment; filename="transactions_${Date.now()}.csv"`);
-            
+            res.setHeader(
+                'Content-Disposition',
+                `attachment; filename="transactions_${Date.now()}.csv"`
+            );
+
             return res.send(csv);
         } catch (err) {
             Logger.error('Export transactions error:');
             return error(res, 500);
         }
     },
-}
+};
 
 /**
  * Helper function to calculate transaction stats
@@ -205,7 +234,7 @@ function calculateTransactionStats(transactions, walletId) {
     let totalSpent = 0;
     let totalReceived = 0;
 
-    transactions.forEach(transaction => {
+    transactions.forEach((transaction) => {
         const amount = Number(transaction.amount_tokens);
         if (transaction.walletSource_id === walletId) {
             totalSpent += amount;

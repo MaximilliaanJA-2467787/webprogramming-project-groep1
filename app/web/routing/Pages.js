@@ -77,10 +77,10 @@ const Pages = {
     },
 
     transactions: {
-       name: 'Transactions',
-       layout: 'layouts/default-layout',
-       view: 'pages/user/allTransactions',
-       route: '/transactions',
+        name: 'Transactions',
+        layout: 'layouts/default-layout',
+        view: 'pages/user/allTransactions',
+        route: '/transactions',
     },
 
     wallet: {
