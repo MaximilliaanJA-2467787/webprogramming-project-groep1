@@ -13,6 +13,7 @@ const loadAuthRoutes = require('./web/routing/AuthRoutes.js');
 const loadAdminRoutes = require('./web/routing/AdminRoutes.js');
 const loadWalletRoutes = require('./web/routing/WalletRoutes.js');
 const loadVendorRoutes = require('./web/routing/VendorRoutes.js');
+const loadTransactionsRoutes = require('./web/routing/TransactionRoutes.js');
 
 class App extends ExpressApp {
     constructor() {
@@ -32,6 +33,7 @@ class App extends ExpressApp {
         loadAuthRoutes(app);
         loadApiRoutes(app);
         loadAdminRoutes(app);
+        loadTransactionsRoutes(app);
 
         app.use(FallbackHandler);
         app.use(ErrorHandler);

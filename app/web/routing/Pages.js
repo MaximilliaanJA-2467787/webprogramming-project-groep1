@@ -76,6 +76,13 @@ const Pages = {
         route: '/analytics',
     },
 
+    transactions: {
+       name: 'Transactions',
+       layout: 'layouts/default-layout',
+       view: 'pages/user/allTransactions',
+       route: '/transactions',
+    },
+
     wallet: {
         name: 'Wallet',
         layout: 'layouts/default-layout',
